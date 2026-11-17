@@ -1,0 +1,77 @@
+
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>مدينة المتابعين</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#101b27;color:white;font-family:Arial}
+header{text-align:center;padding:18px;background:#1b3040}
+h1{margin:5px;color:#ffd36b}
+.stats{display:flex;justify-content:center;gap:12px;flex-wrap:wrap;margin:12px}
+.stat{background:#263e50;padding:12px 18px;border-radius:12px}
+input{padding:12px;border:0;border-radius:10px;margin:5px;width:210px}
+button{padding:11px 16px;border:0;border-radius:10px;background:#ffd36b;margin:4px;font-weight:bold}
+#city{height:65vh;min-height:390px;overflow:auto;background:#9cc9a1;margin:12px;border-radius:16px;position:relative}
+#map{position:relative;width:850px;height:650px;background:linear-gradient(135deg,#9acb9b,#78b58a)}
+.house{position:absolute;width:90px;text-align:center;font-size:34px;cursor:pointer;filter:drop-shadow(2px 4px 2px #345)}
+.house span{display:block;background:#fff;color:#183044;font-size:12px;padding:4px;border-radius:8px}
+#controls{text-align:center}
+</style>
+</head>
+<body>
+<header>
+<h1>🏙️ مدينة المتابعين</h1>
+<p>كل متابع إله بيت خاص بمدينتنا</p>
+</header>
+<div class="stats">
+<div class="stat">🏠 عدد البيوت: <b id="count">0</b></div>
+<div class="stat">👥 السكان: <b id="people">0</b></div>
+</div>
+<div style="text-align:center">
+<input id="search" placeholder="ابحث عن اسم المتابع">
+<button onclick="searchHouse()">بحث 🔎</button>
+</div>
+<div id="controls">
+<button onclick="zoom(1.2)">تكبير +</button>
+<button onclick="zoom(.8)">تصغير −</button>
+</div>
+<div id="city"><div id="map"></div></div>
+<script>
+const followers=[
+{name:"Adnan",number:1,x:100,y:100},
+{name:"متابع جديد",number:2,x:300,y:180},
+{name:"متابع جديد",number:3,x:500,y:300},
+{name:"متابع جديد",number:4,x:200,y:400},
+{name:"متابع جديد",number:5,x:650,y:100}
+];
+const map=document.getElementById("map");
+function draw(){
+map.innerHTML="";
+followers.forEach(h=>{
+let d=document.createElement("div");
+d.className="house";
+d.style.left=h.x+"px";d.style.top=h.y+"px";
+d.innerHTML="🏠<span>"+h.name+" #"+h.number+"</span>";
+map.appendChild(d);
+});
+document.getElementById("count").textContent=followers.length;
+document.getElementById("people").textContent=followers.length;
+}
+function zoom(v){
+let w=parseFloat(map.style.width)||850;
+map.style.width=(w*v)+"px";
+map.style.height=((parseFloat(map.style.height)||650)*v)+"px";
+}
+function searchHouse(){
+let q=document.getElementById("search").value.trim().toLowerCase();
+let h=followers.find(x=>x.name.toLowerCase().includes(q));
+if(!h){alert("لم يتم العثور على المتابع");return;}
+document.getElementById("city").scrollTo({left:h.x,top:h.y,behavior:"smooth"});
+}
+draw();
+</script>
+</body>
+</html>
