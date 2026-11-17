@@ -8,97 +8,141 @@
 <style>
 *{box-sizing:border-box}
 body{margin:0;overflow:hidden;font-family:Arial;background:#9bd3e2}
-#city{position:fixed;inset:0;touch-action:none}
-header{position:fixed;z-index:5;top:10px;left:10px;right:10px;background:#142536ed;color:white;border-radius:15px;padding:12px;display:flex;justify-content:space-between;align-items:center}
-h2{font-size:18px;margin:0 0 5px}
-#count{font-size:13px;color:#bce9dc}
-#searchbar{position:fixed;z-index:5;top:83px;left:10px;right:10px;display:flex;gap:6px}
-input{min-width:0;width:100%;border:1px solid #ddd;border-radius:10px;padding:12px;font-size:15px;background:white;color:#222}
-button{border:0;border-radius:10px;padding:11px 13px;background:#13a879;color:white;font-weight:bold}
-#add{position:fixed;z-index:5;bottom:18px;right:12px;padding:14px 17px}
-#zoom{position:fixed;z-index:5;bottom:18px;left:12px;display:flex;flex-direction:column;gap:7px}
-#zoom button{background:#142536;width:45px;height:45px;font-size:22px}
-#info{display:none;position:fixed;z-index:6;bottom:18px;right:12px;left:100px;background:#142536ed;color:white;padding:13px;border-radius:12px;font-size:14px;line-height:1.8}
-#info a{color:#8ce5c2}
-#hint{position:fixed;z-index:4;bottom:78px;left:8px;right:8px;text-align:center;color:#183a36;font-size:12px;pointer-events:none}
-#modal{display:none;position:fixed;z-index:20;inset:0;background:#0009;align-items:center;justify-content:center;padding:15px}
-#panel{background:#fff;color:#172536;border-radius:18px;padding:20px;width:100%;max-width:390px;max-height:90vh;overflow:auto}
-#panel h3{margin:0 0 15px;font-size:20px}
-.field{margin:12px 0}
-.field label{display:block;font-size:13px;font-weight:bold;margin-bottom:6px}
-.levels{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
-.level{border:2px solid #ddd;border-radius:12px;padding:10px;text-align:center;background:#f7f9fa;color:#172536;cursor:pointer}
-.level.selected{border-color:#12a878;background:#e7f8f0}
-.level .emoji{font-size:30px;display:block;margin-bottom:5px}
-.level small{display:block;color:#667;font-size:11px;margin-top:4px}
-.actions{display:flex;gap:8px;margin-top:18px}
-.actions button{flex:1}
-#cancel{background:#697784}
+#city{position:fixed;inset:0}
+#top{
+ position:fixed;top:10px;right:10px;left:10px;z-index:5;
+ display:flex;align-items:center;justify-content:space-between;
+ gap:8px;pointer-events:none
+}
+.panel{
+ background:#ffffffed;border-radius:15px;padding:10px 13px;
+ box-shadow:0 3px 14px #0002;pointer-events:auto
+}
+#counter{font-weight:bold;color:#244b3b}
+#tools{display:flex;gap:6px;align-items:center}
+button{
+ border:0;border-radius:10px;padding:10px 13px;
+ background:#286b50;color:white;font-weight:bold;font-size:14px
+}
+button.secondary{background:#e8eee9;color:#244b3b}
+button.danger{background:#c94141;color:white}
+#add{position:fixed;bottom:18px;right:15px;z-index:6;
+ padding:15px 20px;border-radius:15px;font-size:16px}
+#searchBox{position:fixed;top:67px;right:10px;z-index:5;width:190px}
+#search{width:100%;border:0;border-radius:12px;padding:11px;outline:none}
+#modal{
+ display:none;position:fixed;inset:0;background:#0009;z-index:20;
+ align-items:center;justify-content:center;padding:15px
+}
+#panel{
+ width:min(420px,100%);background:white;border-radius:20px;
+ padding:20px;max-height:90vh;overflow:auto
+}
+#panel h2{text-align:center;margin:0 0 17px;color:#244b3b}
+#panel input{
+ width:100%;padding:13px;margin:6px 0 12px;border:1px solid #ddd;
+ border-radius:10px;font-size:15px;direction:auto
+}
+.levels{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin:10px 0 17px}
+.level{
+ border:2px solid #e4e4e4;border-radius:12px;padding:12px 5px;
+ text-align:center;background:#fafafa;color:#333;cursor:pointer
+}
+.level.selected{border-color:#25875d;background:#e8f6ee}
+.level .emoji{font-size:27px;display:block;margin-bottom:5px}
+.level:last-child{grid-column:1/-1}
+.actions{display:flex;gap:9px}
+.actions button{flex:1;padding:13px}
+#info{
+ display:none;position:fixed;bottom:15px;left:12px;right:12px;
+ z-index:10;background:#fff;border-radius:17px;padding:14px;
+ box-shadow:0 4px 18px #0003
+}
+#infoTop{display:flex;justify-content:space-between;align-items:center;gap:10px}
+#infoName{font-size:17px;font-weight:bold;color:#244b3b}
+#infoLevel{font-size:13px;color:#777;margin-top:5px;overflow-wrap:anywhere}
+#infoActions{display:flex;gap:7px;margin-top:12px}
+#infoActions button{flex:1}
+#hint{position:fixed;bottom:85px;right:12px;color:#244b3b;
+ background:#ffffffd9;padding:8px 11px;border-radius:10px;font-size:12px}
+@media(max-width:500px){
+ #tools button{padding:8px;font-size:11px}
+ #top{gap:5px}
+ #searchBox{top:66px;width:155px}
+ #hint{bottom:82px}
+}
 </style>
 </head>
 <body>
-
 <div id="city"></div>
 
-<header>
- <div>
-  <h2>🏙️ مدينة المتابعين</h2>
-  <div style="font-size:12px;color:#c4d8e3">كل متابع إله بيت خاص بيه ❤️</div>
+<div id="top">
+ <div class="panel" id="counter">🏘️ المتابعون: 0</div>
+ <div id="tools">
+  <button class="secondary" onclick="zoomIn()">＋</button>
+  <button class="secondary" onclick="zoomOut()">－</button>
+  <button class="secondary" onclick="resetView()">⌂</button>
+  <button class="secondary" id="dayNightBtn" onclick="toggleDayNight()">🌙 ليل</button>
  </div>
- <div style="text-align:center">
-  <div style="font-size:22px">🏠</div>
-  <div id="count">0 بيوت</div>
- </div>
-</header>
-
-<div id="searchbar">
- <input id="search" placeholder="🔍 ابحث عن اسم المتابع">
- <button onclick="findHouse()">بحث</button>
 </div>
 
-<div id="zoom">
- <button onclick="zoomIn()">＋</button>
- <button onclick="zoomOut()">－</button>
- <button onclick="resetView()" style="font-size:16px">↺</button>
+<div id="searchBox">
+ <input id="search" placeholder="🔍 ابحث عن متابع..." oninput="searchHouse()">
 </div>
 
-<button id="add" onclick="openModal()">＋ إضافة بيت</button>
-<div id="info"></div>
-<div id="hint">اسحب بإصبع واحد لتحريك المدينة • اضغط على البيت لمعلوماته</div>
+<div id="hint">اسحب لتحريك المدينة • بإصبعين للتكبير</div>
+<button id="add" onclick="openAdd()">＋ إضافة بيت</button>
+
+<div id="info">
+ <div id="infoTop">
+  <div>
+   <div id="infoName"></div>
+   <div id="infoLevel"></div>
+  </div>
+  <button class="secondary" onclick="closeInfo()">✕</button>
+ </div>
+ <div id="infoActions">
+  <button onclick="editSelected()">✏️ تعديل</button>
+  <button class="danger" onclick="deleteSelected()">🗑️ حذف</button>
+ </div>
+</div>
 
 <div id="modal">
  <div id="panel">
-  <h3>🏡 إضافة بيت جديد</h3>
-  <div class="field">
-   <label for="personName">اسم المتابع</label>
-   <input id="personName" placeholder="اكتب اسم المتابع">
-  </div>
-  <div class="field">
-   <label for="personAccount">حساب المتابع أو رابطه</label>
-   <input id="personAccount" placeholder="@username أو رابط الحساب">
-  </div>
-  <div class="field">
-   <label>اختر مستوى البيت</label>
-   <div class="levels" id="levels">
-    <div class="level selected" data-level="1"><span class="emoji">🏠</span>المستوى 1<small>بيت صغير</small></div>
-    <div class="level" data-level="2"><span class="emoji">🏡</span>المستوى 2<small>بيت عادي</small></div>
-    <div class="level" data-level="3"><span class="emoji">🏘️</span>المستوى 3<small>بيت كبير</small></div>
-    <div class="level" data-level="4"><span class="emoji">🏛️</span>المستوى 4<small>فيلا فاخرة</small></div>
-    <div class="level" data-level="5" style="grid-column:span 2"><span class="emoji">👑</span>المستوى 5<small>قصر ضخم</small></div>
+  <h2 id="modalTitle">🏡 إضافة بيت جديد</h2>
+  <input id="followerName" placeholder="اسم المتابع">
+  <input id="followerAccount" placeholder="حساب المتابع أو رابطه">
+  <div class="levels">
+   <div class="level selected" data-level="1" onclick="chooseLevel(1)">
+    <span class="emoji">🏠</span>المستوى 1<br>بيت كلاسيكي
+   </div>
+   <div class="level" data-level="2" onclick="chooseLevel(2)">
+    <span class="emoji">🏡</span>المستوى 2<br>بيت عصري
+   </div>
+   <div class="level" data-level="3" onclick="chooseLevel(3)">
+    <span class="emoji">🏘️</span>المستوى 3<br>بيت حجري
+   </div>
+   <div class="level" data-level="4" onclick="chooseLevel(4)">
+    <span class="emoji">🏛️</span>المستوى 4<br>فيلا فاخرة
+   </div>
+   <div class="level" data-level="5" onclick="chooseLevel(5)">
+    <span class="emoji">👑</span>المستوى 5<br>قصر ملكي
    </div>
   </div>
   <div class="actions">
-   <button onclick="saveHouse()">إضافة البيت</button>
-   <button id="cancel" onclick="closeModal()">إلغاء</button>
+   <button onclick="saveHouse()">حفظ البيت</button>
+   <button class="secondary" onclick="closeModal()">إلغاء</button>
   </div>
  </div>
 </div>
 
 <script type="importmap">
-{"imports":{
-"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
-"three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
-}}
+{
+ "imports":{
+  "three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+  "three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+ }
+}
 </script>
 
 <script type="module">
@@ -106,10 +150,10 @@ import * as THREE from "three";
 import {OrbitControls} from "three/addons/controls/OrbitControls.js";
 
 const scene=new THREE.Scene();
-scene.background=new THREE.Color(0xc9dfdf);
-scene.fog=new THREE.Fog(0xc9dfdf,220,520);
+scene.background=new THREE.Color(0x9bd3e2);
+scene.fog=new THREE.Fog(0x9bd3e2,650,1600);
 
-const camera=new THREE.PerspectiveCamera(45,innerWidth/innerHeight,.1,1000);
+const camera=new THREE.PerspectiveCamera(45,innerWidth/innerHeight,.1,2500);
 camera.position.set(170,190,210);
 
 const renderer=new THREE.WebGLRenderer({antialias:true});
@@ -117,403 +161,551 @@ renderer.setSize(innerWidth,innerHeight);
 renderer.setPixelRatio(Math.min(devicePixelRatio,2));
 renderer.shadowMap.enabled=true;
 renderer.shadowMap.type=THREE.PCFSoftShadowMap;
-renderer.outputColorSpace=THREE.SRGBColorSpace;
 document.getElementById("city").appendChild(renderer.domElement);
 
 const controls=new OrbitControls(camera,renderer.domElement);
-controls.target.set(0,0,0);
-controls.enableDamping=true;
 controls.enableRotate=false;
 controls.enablePan=true;
-controls.screenSpacePanning=true;
-controls.minDistance=35;
-controls.maxDistance=400;
+controls.enableDamping=true;
+controls.dampingFactor=.08;
+controls.minDistance=45;
+controls.maxDistance=1100;
 controls.maxPolarAngle=Math.PI/2.15;
 controls.touches.ONE=THREE.TOUCH.PAN;
 controls.touches.TWO=THREE.TOUCH.DOLLY_PAN;
+controls.target.set(0,0,0);
 
-scene.add(new THREE.HemisphereLight(0xffffff,0x82765c,2));
+const hemi=new THREE.HemisphereLight(0xffffff,0x9c8b70,2);
+scene.add(hemi);
+
 const sun=new THREE.DirectionalLight(0xffffff,2.2);
-sun.position.set(100,180,80);
+sun.position.set(-180,280,120);
 sun.castShadow=true;
 sun.shadow.mapSize.set(2048,2048);
 scene.add(sun);
 
-const mat=c=>new THREE.MeshStandardMaterial({color:c,roughness:.85});
-function block(w,h,d,color,x,y,z){
- const m=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),mat(color));
- m.position.set(x,y,z);
- m.castShadow=true;
- m.receiveShadow=true;
- scene.add(m);
- return m;
+const moon=new THREE.DirectionalLight(0x8caeff,0);
+moon.position.set(150,180,-100);
+scene.add(moon);
+
+let isNight=false;
+
+window.toggleDayNight=()=>{
+ isNight=!isNight;
+ if(isNight){
+  scene.background.set(0x101b35);
+  scene.fog.color.set(0x101b35);
+  sun.intensity=.12;
+  hemi.intensity=.35;
+  moon.intensity=.8;
+  document.getElementById("dayNightBtn").textContent="☀️ نهار";
+ }else{
+  scene.background.set(0x9bd3e2);
+  scene.fog.color.set(0x9bd3e2);
+  sun.intensity=2.2;
+  hemi.intensity=2;
+  moon.intensity=0;
+  document.getElementById("dayNightBtn").textContent="🌙 ليل";
+ }
+};
+
+const mat=(color,roughness=.85)=>new THREE.MeshStandardMaterial({color,roughness});
+const groundMat=mat(0xd9c69c);
+const roadMat=mat(0x777b7a);
+const lineMat=mat(0xf4e6bd);
+const greenMat=mat(0x39824d);
+const darkGreen=mat(0x235c3c);
+const stoneMat=mat(0xd8cbb2);
+
+function box(parent,x,y,z,w,h,d,material){
+ const m=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),material);
+ m.position.set(x,y,z);m.castShadow=true;m.receiveShadow=true;
+ parent.add(m);return m;
+}
+function cylinder(parent,x,y,z,r1,r2,h,material,segments=16){
+ const m=new THREE.Mesh(new THREE.CylinderGeometry(r1,r2,h,segments),material);
+ m.position.set(x,y,z);m.castShadow=true;parent.add(m);return m;
+}
+function roof(parent,x,y,z,w,h,d,material,rotation=0){
+ const m=new THREE.Mesh(new THREE.ConeGeometry(w*.77,h,4),material);
+ m.rotation.y=Math.PI/4+rotation;m.scale.z=d/w;
+ m.position.set(x,y,z);m.castShadow=true;parent.add(m);return m;
 }
 
-const ground=new THREE.Mesh(new THREE.PlaneGeometry(380,380),mat(0xd8c69f));
-ground.rotation.x=-Math.PI/2;
-ground.receiveShadow=true;
-scene.add(ground);
+box(scene,0,-1,0,1100,2,1100,groundMat);
 
-// الطرق الرئيسية والفرعية
-function road(x,z,w,d){
- block(w,.25,d,0x55585a,x,.12,z);
-}
-for(let p=-160;p<=160;p+=40){
- road(p,0,9,320);
- road(0,p,320,9);
-}
-
-// أرصفة الأحياء ومساحاتها
-for(let x=-150;x<=150;x+=20){
- for(let z=-150;z<=150;z+=20){
-  if(Math.abs(x)<38&&Math.abs(z)<38)continue;
-  block(1,.08,1,0xc7b58f,x,.1,z);
+// الطرق الرئيسية
+for(let p=-500;p<=500;p+=100){
+ box(scene,p,.02,0,12,.08,1100,roadMat);
+ box(scene,0,.025,p,1100,.08,12,roadMat);
+ for(let n=-500;n<500;n+=22){
+  box(scene,p,.08,n,.35,.04,8,lineMat);
+  box(scene,n,.08,p,8,.04,.35,lineMat);
  }
 }
 
-// أشجار النخيل
+// أشجار الشوارع
 function tree(x,z){
- const trunk=new THREE.Mesh(new THREE.CylinderGeometry(.5,.8,4,8),mat(0x765238));
- trunk.position.set(x,2,z);
- scene.add(trunk);
- const crown=new THREE.Group();
- for(let i=0;i<7;i++){
-  const leaf=new THREE.Mesh(new THREE.ConeGeometry(.65,5,6),mat(0x47804a));
-  leaf.rotation.z=Math.PI/2;
-  leaf.rotation.y=i*Math.PI*2/7;
-  leaf.position.set(Math.cos(i*Math.PI*2/7)*1.7,0,Math.sin(i*Math.PI*2/7)*1.7);
-  crown.add(leaf);
+ const g=new THREE.Group();g.position.set(x,0,z);scene.add(g);
+ cylinder(g,0,3,0,.65,.85,6,mat(0x86603d));
+ for(let i=0;i<6;i++){
+  const leaf=new THREE.Mesh(new THREE.SphereGeometry(2.4,8,6),greenMat);
+  const a=i*Math.PI/3;
+  leaf.position.set(Math.cos(a)*2,6,Math.sin(a)*2);
+  leaf.scale.set(1.4,.35,.55);leaf.rotation.y=a;g.add(leaf);
  }
- crown.position.set(x,4.5,z);
- scene.add(crown);
 }
-for(let i=-150;i<=150;i+=20){
- tree(i,-7);
- tree(i,7);
-}
-
-// لافتات المعالم
-function label(text,x,y,z){
- const c=document.createElement("canvas");
- c.width=512;c.height=128;
- const ctx=c.getContext("2d");
- ctx.fillStyle="#fff";
- ctx.beginPath();ctx.roundRect(5,5,502,118,20);ctx.fill();
- ctx.fillStyle="#263b30";
- ctx.font="bold 48px Arial";
- ctx.textAlign="center";ctx.textBaseline="middle";
- ctx.fillText(text,256,65);
- const texture=new THREE.CanvasTexture(c);
- const sprite=new THREE.Sprite(new THREE.SpriteMaterial({map:texture,transparent:true}));
- sprite.position.set(x,y,z);
- sprite.scale.set(25,6,1);
- scene.add(sprite);
+for(let p=-500;p<=500;p+=100){
+ for(let n=-480;n<=480;n+=30){
+  tree(p+10,n+10);
+  tree(n+10,p-10);
+ }
 }
 
-// الساحة المركزية
-block(48,.4,48,0xc5ad87,0,.3,0);
-const fountain=new THREE.Mesh(new THREE.CylinderGeometry(9,10,1.5,32),mat(0x9bafa9));
-fountain.position.set(0,1,0);scene.add(fountain);
-const water=new THREE.Mesh(new THREE.CylinderGeometry(7,7,.3,32),mat(0x48a9c0));
-water.position.set(0,1.9,0);scene.add(water);
-const fountainTop=new THREE.Mesh(new THREE.CylinderGeometry(1,1.4,5,12),mat(0x9bafa9));
-fountainTop.position.set(0,4,0);scene.add(fountainTop);
+// ساحة مركزية
+cylinder(scene,0,.15,0,43,43,.3,stoneMat,48);
+cylinder(scene,0,.4,0,12,12,.5,mat(0x78b8c6),40);
+cylinder(scene,0,.8,0,7,7,.4,mat(0x3d9eae),40);
+cylinder(scene,0,1.2,0,2,2,.4,mat(0xbcecf1),24);
+
+// نافورة
+for(let i=0;i<6;i++){
+ const a=i*Math.PI/3;
+ cylinder(scene,Math.cos(a)*8,1,Math.sin(a)*8,.6,.6,2,mat(0x9edce3));
+}
+
+// مباني المدينة
+function landmark(name,x,z,color,w,d,h){
+ const g=new THREE.Group();g.position.set(x,0,z);scene.add(g);
+ box(g,0,h/2,0,w,h,d,mat(color));
+ box(g,0,h+.4,0,w+2,.8,d+2,stoneMat);
+ return g;
+}
 
 // جامع التوابين
-function buildMosque(){
- const x=0,z=-70;
- block(35,13,28,0xf0dfbd,x,6.5,z);
- block(39,1.5,32,0xb58c5d,x,13.5,z);
- const dome=new THREE.Mesh(new THREE.SphereGeometry(10,32,20,0,Math.PI*2,0,Math.PI/2),mat(0x397e62));
- dome.position.set(x,15,z);scene.add(dome);
- for(const dx of [-18,18]){
-  block(3,25,3,0xe9d7b4,x+dx,12.5,z-8);
-  const cap=new THREE.Mesh(new THREE.ConeGeometry(2.5,5,12),mat(0x397e62));
-  cap.position.set(x+dx,27,z-8);scene.add(cap);
-  block(4.5,1.2,4.5,0xc4a16f,x+dx,20,z-8);
+{
+ const g=landmark("جامع التوابين",-55,-55,0xe6dfce,38,30,13);
+ const green=mat(0x27794e);
+ cylinder(g,0,34,0,9,9,2,green,32);
+ const dome=new THREE.Mesh(new THREE.SphereGeometry(9,24,16,0,Math.PI*2,0,Math.PI/2),green);
+ dome.position.y=35;g.add(dome);
+ for(const x of [-14,14]){
+  cylinder(g,x,22,0,2.5,3,44,mat(0xe8dfca));
+  cylinder(g,x,45,0,3.4,2.5,2,green);
+  cylinder(g,x,51,0,1.3,1.3,10,green);
+  roof(g,x,58,0,2,5,2,green);
  }
- block(9,8,1.5,0x98704b,x,4,z+14);
- label("جامع التوابين",x,34,z);
 }
-buildMosque();
 
 // بيت العمدة
-function buildMayor(){
- const x=-75,z=-70;
- block(27,12,22,0xe5c99c,x,6,z);
- block(13,9,9,0xf2dfbd,x,16,z);
- for(const dx of [-10,0,10]){
-  block(1,8,1,0x98714c,x+dx,4,z+12);
+{
+ const g=landmark("بيت العمدة",55,-55,0xd8c3a1,32,28,15);
+ roof(g,0,25,0,23,9,22,mat(0x76513d));
+ for(let x=-10;x<=10;x+=10){
+  cylinder(g,x,10,16,1,1,18,stoneMat);
  }
- const dome=new THREE.Mesh(new THREE.SphereGeometry(5,24,16,0,Math.PI*2,0,Math.PI/2),mat(0x4b806d));
- dome.position.set(x,20,z);scene.add(dome);
- block(34,.3,4,0xc9ae84,x,0.2,z+16);
- label("بيت العمدة",x,28,z);
 }
-buildMayor();
 
-// المدرسة: طابقان ونوافذ وساحة
-function buildSchool(){
- const x=75,z=-70;
- block(32,12,19,0xe8d4ad,x,6,z);
- block(34,1,21,0x96734d,x,12.5,z);
- for(const dx of [-12,-6,6,12]){
-  block(2.5,3,.3,0x75a9b8,x+dx,8,z+9.7);
-  block(2.5,3,.3,0x75a9b8,x+dx,8,z-9.7);
+// المدرسة
+{
+ const g=landmark("المدرسة",-55,55,0xf0d79b,34,26,12);
+ box(g,0,15,0,36,3,30,mat(0xb47a4c));
+ for(let x=-12;x<=12;x+=8){
+  box(g,x,8,16,4,5,.5,mat(0x5d9cae));
+  box(g,x,20,16,4,5,.5,mat(0x5d9cae));
  }
- block(7,7,1,0x896747,x,3.5,z+10);
- block(28,.3,18,0xcab18b,x,.2,z+25);
- block(17,.3,10,0x4a8750,x,.4,z+25);
- block(.4,9,.4,0x777777,x,4.5,z+35);
- label("المدرسة",x,20,z);
 }
-buildSchool();
 
-// المتحف: أعمدة وقبة ودرج
-function buildMuseum(){
- const x=-75,z=75;
- block(29,13,21,0xe7d8bb,x,6.5,z);
- block(33,1.5,25,0xb18c61,x,14,z);
- for(const dx of [-11,-4,4,11]){
-  const c=new THREE.Mesh(new THREE.CylinderGeometry(.8,.9,11,12),mat(0xf8ead1));
-  c.position.set(x+dx,7,z+11);scene.add(c);
+// المتحف
+{
+ const g=landmark("المتحف",55,55,0xe6dfd0,30,25,12);
+ for(let x=-11;x<=11;x+=7){
+  cylinder(g,x,9,16,1,1,18,mat(0xfaf0dc),12);
  }
- block(21,1,5,0xc1a17a,x,1,z+15);
- block(17,1,4,0xd5bd98,x,2,z+19);
- const dome=new THREE.Mesh(new THREE.SphereGeometry(7,24,16,0,Math.PI*2,0,Math.PI/2),mat(0x9a8063));
- dome.position.set(x,14,z);scene.add(dome);
- label("المتحف",x,25,z);
+ roof(g,0,25,0,18,8,18,mat(0x9b805e));
 }
-buildMuseum();
 
-// السوق الشعبي: محلات ومظلات
-function buildMarket(){
- const x=75,z=75;
- const colors=[0xd9a46e,0xb96e4d,0xe3c38c,0x9eaa83,0xd1a2a2];
+// السوق
+{
+ const g=landmark("السوق",0,75,0xd5b58c,46,20,10);
+ const colors=[0xb64c3c,0xd8a13a,0x427b71,0x547a9b,0xa76d91];
  for(let i=0;i<5;i++){
-  const sx=x-18+i*9;
-  block(8,7,9,colors[i],sx,3.5,z);
-  block(8,.7,10,0x76533b,sx,7.2,z);
-  block(3,3,.3,0x83a9aa,sx,2.5,z+4.7);
-  block(8,.5,4,i%2?0xd4b05f:0xb34e42,sx,7.5,z+7);
+  const x=-18+i*9;
+  box(g,x,8,12,7,8,8,mat(colors[i]));
+  box(g,x,13,12,8,1,10,mat(0xf0d5a4));
+  box(g,x,4,16,4,4,.4,mat(0x453b34));
  }
- block(50,.2,15,0xcbb18d,x,.2,z+16);
- for(let i=0;i<4;i++)block(4,1,3,0x9c704b,x-15+i*10,1,z+18);
- label("السوق الشعبي",x,14,z);
 }
-buildMarket();
 
-// ملعب كرة القدم
-function buildStadium(){
- const x=0,z=80;
- block(54,3,40,0x81766a,x,1.5,z);
- block(42,.3,28,0x39834b,x,3.2,z);
- for(const dx of [-20,0,20]){
-  block(.2,.08,28,0xffffff,x+dx,3.4,z);
- }
- block(42,.08,.2,0xffffff,x,3.4,z);
- const circle=new THREE.Mesh(new THREE.TorusGeometry(5,.12,8,32),mat(0xffffff));
- circle.rotation.x=Math.PI/2;circle.position.set(x,3.5,z);scene.add(circle);
- for(const dz of [-19,19]){
-  for(let i=0;i<3;i++)block(48,1.5,2,0xb7a17e,x,4+i*1.5,z+dz);
- }
- for(const dx of [-26,26]){
-  for(const dz of [-18,18]){
-   block(.6,15,.6,0x77736c,x+dx,8,z+dz);
-  }
- }
- label("ملعب المدينة",x,22,z);
+// ملعب
+{
+ const g=new THREE.Group();g.position.set(0,0,-105);scene.add(g);
+ box(g,0,.3,0,58,.6,38,mat(0x3b9855));
+ const white=mat(0xffffff);
+ box(g,0,.65,0,.4,.1,34,white);
+ for(let x of [-27,27])box(g,x,.7,0,.4,.1,34,white);
+ for(let z of [-17,17])box(g,0,.7,z,54,.1,.4,white);
+ cylinder(g,0,.7,0,7,7,.15,white,32);
 }
-buildStadium();
 
-// حديقة مركزية إضافية
-function buildPark(){
- block(42,.2,35,0x69a75b,0,.15,140);
- for(let i=-15;i<=15;i+=10){
-  tree(i,127);tree(i,153);
- }
- label("حديقة المدينة",0,9,140);
-}
-buildPark();
-
-// نظام بيوت المتابعين
-const followers=[];
-const clickable=[];
-const houseObjects=[];
-const houseColors=[0xf4c46a,0xe58e78,0x79b9df,0xb99be5,0xe4a8c2,0x91c98b,0xe4d18b];
-const levelNames=["","بيت صغير","بيت عادي","بيت كبير","فيلا فاخرة","قصر ضخم"];
-const levelSizes=[0,.75,1,1.25,1.55,1.9];
-
-function makeLabel(text){
+function makeLabel(text,width=19){
  const canvas=document.createElement("canvas");
  canvas.width=512;canvas.height=128;
  const ctx=canvas.getContext("2d");
- ctx.fillStyle="#142536";
- ctx.beginPath();ctx.roundRect(5,5,502,118,25);ctx.fill();
- ctx.fillStyle="white";
- ctx.font="bold 42px Arial";
- ctx.textAlign="center";ctx.textBaseline="middle";
- ctx.fillText(text,256,65);
+ ctx.fillStyle="rgba(255,255,255,.94)";
+ ctx.beginPath();
+ ctx.roundRect(8,8,496,112,25);
+ ctx.fill();
+ ctx.fillStyle="#244b3b";
+ ctx.font="bold 43px Arial";
+ ctx.textAlign="center";
+ ctx.textBaseline="middle";
+ ctx.fillText(text,256,64);
  const texture=new THREE.CanvasTexture(canvas);
  const sprite=new THREE.Sprite(new THREE.SpriteMaterial({map:texture,transparent:true}));
- sprite.scale.set(7,1.7,1);
+ sprite.scale.set(width,width*.25,1);
+ sprite.position.y=12;
  return sprite;
 }
 
-function addHouse(person){
- const group=new THREE.Group();
- group.position.set(person.x,0,person.z);
- const size=levelSizes[person.level];
+// أسماء المعالم فوق المباني
+function addLandmarkLabel(text,x,y,z){
+ const tag=makeLabel(text,30);
+ tag.position.set(x,y,z);
+ scene.add(tag);
+}
 
- const base=new THREE.Mesh(
-  new THREE.BoxGeometry(4*size,2.6*size,3.5*size),
-  new THREE.MeshStandardMaterial({color:person.color||houseColors[(person.number-1)%houseColors.length]})
- );
- base.position.y=1.3*size;
- base.castShadow=true;
- base.receiveShadow=true;
- group.add(base);
+addLandmarkLabel("جامع التوابين",-55,72,-55);
+addLandmarkLabel("بيت العمدة",55,34,-55);
+addLandmarkLabel("المدرسة",-55,32,55);
+addLandmarkLabel("المتحف",55,32,55);
+addLandmarkLabel("السوق",0,27,75);
+addLandmarkLabel("ملعب المدينة",0,17,-105);
 
- const roof=new THREE.Mesh(
-  new THREE.ConeGeometry(3.1*size,2.1*size,4),
-  mat(person.level===5?0xd5aa38:0x994d3d)
- );
- roof.position.y=3.6*size;
- roof.rotation.y=Math.PI/4;
- roof.castShadow=true;
- group.add(roof);
+// ألوان وتصاميم المستويات
+const houseColors=[
+ {wall:0xe6c99e,roof:0x9b5940,trim:0xf5e5c9},
+ {wall:0xe9e7df,roof:0x485d69,trim:0x6da6a0},
+ {wall:0xc9b69a,roof:0x75513f,trim:0xe8d8bd},
+ {wall:0xf1e5d1,roof:0x343f50,trim:0xc6a56b},
+ {wall:0xf0dfbd,roof:0x6b4938,trim:0xd7b65e}
+];
+const levelNames=["بيت كلاسيكي","بيت عصري","بيت حجري","فيلا فاخرة","قصر ملكي"];
+const houses=[];
+let selectedId=null,editingId=null,chosenLevel=1;
+const houseRoot=new THREE.Group();scene.add(houseRoot);
 
- const door=new THREE.Mesh(new THREE.BoxGeometry(.8*size,1.5*size,.12*size),mat(0x70452e));
- door.position.set(0,.75*size,1.81*size);
- group.add(door);
+function makeHouse(data,index){
+ const g=new THREE.Group();
+ const c=houseColors[data.level-1];
+ const wall=mat(c.wall),roofMat=mat(c.roof),trim=mat(c.trim);
 
- for(const x of [-1.15,1.15]){
-  const win=new THREE.Mesh(new THREE.BoxGeometry(.75*size,.75*size,.12*size),mat(0x9de5ed));
-  win.position.set(x*size,1.8*size,1.82*size);
-  group.add(win);
+ // أبعاد موحدة لجميع البيوت
+ box(g,0,3.2,0,10,6.4,8,wall);
+ box(g,0,6.5,0,10.5,.35,8.5,trim);
+
+ // الباب والنوافذ
+ box(g,0,2,4.08,1.7,4,.18,mat(0x684632));
+ for(const x of [-3,3]){
+  box(g,x,4,4.12,2,2,.2,mat(0x6da9b5));
+  box(g,x,4,4.25,.15,2.2,.1,trim);
  }
 
- if(person.level>=3){
-  blockHouseBalcony(group,size);
+ // شرفة أمامية موحدة
+ box(g,0,2.1,5.1,6,.25,2,trim);
+ for(const x of [-2.5,0,2.5])box(g,x,2.8,6,.15,1.3,.15,trim);
+
+ if(data.level===1){
+  roof(g,0,9,0,7.8,4,8,roofMat);
+  box(g,0,7,0,10,.4,8,trim);
  }
- if(person.level===5){
-  const tower=new THREE.Mesh(new THREE.ConeGeometry(.55,1.5,4),mat(0xe8bd43));
-  tower.position.set(0,5.3*size,0);
-  group.add(tower);
+ if(data.level===2){
+  box(g,0,7,0,10.7,1,8.7,roofMat);
+  for(let x=-4;x<=4;x+=2)box(g,x,7.8,-3.8,.18,.6,.18,trim);
+ }
+ if(data.level===3){
+  roof(g,0,9,0,7.7,4.2,8,roofMat);
+  for(let x of [-4,4]){
+   box(g,x,5,0,.35,8,.35,trim);
+  }
+  box(g,0,8.5,0,3,.4,3,trim);
+ }
+ if(data.level===4){
+  box(g,0,7.3,0,11,1,9,roofMat);
+  box(g,0,8,0,7,.35,6,trim);
+  for(let x of [-4,4])cylinder(g,x,5,3.5,.18,.18,6,trim,8);
+  box(g,0,8.5,0,5,.3,4,trim);
+ }
+ if(data.level===5){
+  box(g,0,7.2,0,11,1,9,roofMat);
+  cylinder(g,0,9,0,2.4,2.4,1,trim,20);
+  const dome=new THREE.Mesh(new THREE.SphereGeometry(2.4,16,12,0,Math.PI*2,0,Math.PI/2),roofMat);
+  dome.position.y=9.5;g.add(dome);
+  for(let x of [-4,4]){
+   cylinder(g,x,4,3.8,.3,.3,8,trim,10);
+  }
+  box(g,0,8,0,8,.3,7,trim);
  }
 
- const nameLabel=makeLabel(person.name+" #"+person.number);
- nameLabel.position.set(0,5.7*size,0);
- group.add(nameLabel);
- scene.add(group);
- clickable.push(base);
- base.userData.person=person;
- houseObjects.push({person,group});
-}
-function blockHouseBalcony(group,size){
- const balcony=new THREE.Mesh(new THREE.BoxGeometry(2.8*size,.18*size,.7*size),mat(0xe5e1d5));
- balcony.position.set(0,1.15*size,2.05*size);
- group.add(balcony);
+ // اسم المتابع فوق بيته
+ const label=makeLabel(data.name);
+ label.position.y=15;
+ g.add(label);
+
+ g.userData.houseId=data.id;
+ g.traverse(o=>{if(o.isMesh)o.userData.houseId=data.id});
+ return g;
 }
 
-// توزيع البيوت في أحياء واسعة
-function getPosition(index){
- const columns=12;
- const col=index%columns;
- const row=Math.floor(index/columns);
- return [-145+col*25,115+row*23];
+// مواقع منتظمة مع فراغات للشوارع
+function getLotPosition(index){
+ const cols=32;
+ let found=0;
+ for(let r=0;r<80;r++){
+  for(let c=0;c<cols;c++){
+   const x=(Math.floor(c/4)*86+(c%4)*18)-340;
+   const z=(Math.floor(r/4)*86+(r%4)*18)-340;
+   if(Math.abs(x)<95&&Math.abs(z)<95)continue;
+   if(found===index)return {x,z};
+   found++;
+  }
+ }
+ return {x:0,z:0};
 }
 
-function updateCount(){
- document.getElementById("count").textContent=followers.length+" بيوت";
+function addHouse(data){
+ const pos=getLotPosition(houses.length);
+ data.x=pos.x;data.z=pos.z;
+ const obj=makeHouse(data,houses.length);
+ obj.position.set(pos.x,0,pos.z);
+ houseRoot.add(obj);
+ houses.push({...data,object:obj});
+ updateCounter();
 }
 
-let selectedLevel=1;
-window.openModal=()=>document.getElementById("modal").style.display="flex";
-window.closeModal=()=>document.getElementById("modal").style.display="none";
+function updateHouse(data){
+ const i=houses.findIndex(h=>h.id===data.id);
+ if(i<0)return;
+ const old=houses[i];
+ houseRoot.remove(old.object);
+ const updated={...old,...data};
+ const obj=makeHouse(updated,i);
+ obj.position.set(old.x,0,old.z);
+ houseRoot.add(obj);
+ houses[i]={...updated,object:obj};
+ updateCounter();
+ showInfo(data.id);
+}
 
-document.querySelectorAll(".level").forEach(el=>{
- el.addEventListener("click",()=>{
-  document.querySelectorAll(".level").forEach(x=>x.classList.remove("selected"));
-  el.classList.add("selected");
-  selectedLevel=Number(el.dataset.level);
- });
-});
+function updateCounter(){
+ document.getElementById("counter").textContent="🏘️ المتابعون: "+houses.length;
+ saveLocal();
+}
 
-window.saveHouse=function(){
- const name=document.getElementById("personName").value.trim();
- const account=document.getElementById("personAccount").value.trim();
- if(!name){alert("اكتب اسم المتابع أولاً");return}
- if(followers.length>=1000){alert("وصلنا إلى 1000 بيت");return}
- const number=followers.length+1;
- const pos=getPosition(followers.length);
- const person={name,account,number,x:pos[0],z:pos[1],level:selectedLevel,color:houseColors[(number-1)%houseColors.length]};
- followers.push(person);
- addHouse(person);
- updateCount();
- closeModal();
- document.getElementById("personName").value="";
- document.getElementById("personAccount").value="";
- showInfo(person);
- alert("تمت إضافة بيت "+name);
+// حفظ معلومات البيوت على نفس المتصفح
+function saveLocal(){
+ try{
+  localStorage.setItem("followersCityHouses",JSON.stringify(
+   houses.map(({object,...h})=>h)
+  ));
+ }catch(e){
+  console.warn("تعذر حفظ البيوت",e);
+  alert("تعذر حفظ البيوت في المتصفح");
+ }
+}
+
+// استرجاع البيوت بعد تحديث الصفحة
+function loadLocal(){
+ try{
+  const data=JSON.parse(localStorage.getItem("followersCityHouses")||"[]");
+  if(Array.isArray(data)){
+   data.forEach(h=>{
+    // التحقق من مستوى البيت
+    if(!h.level||h.level<1||h.level>5)h.level=1;
+    // الحفاظ على موقع البيت المحفوظ
+    if(typeof h.x!=="number"||typeof h.z!=="number"){
+     const pos=getLotPosition(houses.length);
+     h.x=pos.x;
+     h.z=pos.z;
+    }
+    const obj=makeHouse(h,houses.length);
+    obj.position.set(h.x,0,h.z);
+    houseRoot.add(obj);
+    houses.push({...h,object:obj});
+   });
+  }
+ }catch(e){
+  console.warn("تعذر تحميل البيوت المحفوظة",e);
+ }
+ document.getElementById("counter").textContent="🏘️ المتابعون: "+houses.length;
+}
+loadLocal();
+
+// نافذة الإضافة والتعديل
+window.openAdd=()=>{
+ editingId=null;
+ chosenLevel=1;
+ document.getElementById("modalTitle").textContent="🏡 إضافة بيت جديد";
+ document.getElementById("followerName").value="";
+ document.getElementById("followerAccount").value="";
+ chooseLevel(1);
+ document.getElementById("modal").style.display="flex";
 };
 
-function escapeHTML(value){
- return String(value).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
-}
+window.closeModal=()=>{
+ document.getElementById("modal").style.display="none";
+};
 
-function showInfo(person){
- const box=document.getElementById("info");
- box.style.display="block";
- let accountHtml=escapeHTML(person.account||"غير مضاف");
- if(person.account){
-  let url=person.account;
-  if(url.startsWith("@"))url="https://www.instagram.com/"+url.slice(1);
-  else if(!/^https?:\/\//i.test(url))url="https://"+url;
-  try{
-   const parsed=new URL(url);
-   if(parsed.protocol==="http:"||parsed.protocol==="https:"){
-    accountHtml='<a href="'+escapeHTML(parsed.href)+'" target="_blank" rel="noopener">فتح حساب المتابع</a>';
-   }
-  }catch(e){}
+window.chooseLevel=(level)=>{
+ chosenLevel=level;
+ document.querySelectorAll(".level").forEach(el=>{
+  el.classList.toggle("selected",Number(el.dataset.level)===level);
+ });
+};
+
+window.saveHouse=()=>{
+ const name=document.getElementById("followerName").value.trim();
+ const account=document.getElementById("followerAccount").value.trim();
+
+ if(!name){
+  alert("اكتب اسم المتابع أولاً");
+  return;
  }
- box.innerHTML="<b>🏠 معلومات البيت</b><br>"+
- "الاسم: "+escapeHTML(person.name)+"<br>"+
- "رقم البيت: "+person.number+"<br>"+
- "الحساب: "+accountHtml+"<br>"+
- "المستوى: "+person.level+" - "+levelNames[person.level];
+
+ if(editingId){
+  updateHouse({id:editingId,name,account,level:chosenLevel});
+  editingId=null;
+ }else{
+  addHouse({id:Date.now().toString(),name,account,level:chosenLevel});
+ }
+
+ closeModal();
+};
+
+// تعديل الاسم والحساب والمستوى
+window.editSelected=()=>{
+ const h=houses.find(x=>x.id===selectedId);
+ if(!h)return;
+
+ editingId=h.id;
+ chosenLevel=h.level;
+
+ document.getElementById("modalTitle").textContent="✏️ تعديل بيانات البيت";
+ document.getElementById("followerName").value=h.name;
+ document.getElementById("followerAccount").value=h.account||"";
+ chooseLevel(h.level);
+ document.getElementById("modal").style.display="flex";
+};
+
+// حذف البيت
+window.deleteSelected=()=>{
+ const h=houses.find(x=>x.id===selectedId);
+ if(!h)return;
+
+ if(!confirm("متأكد تريد تحذف بيت "+h.name+"؟"))return;
+
+ houseRoot.remove(h.object);
+ const i=houses.findIndex(x=>x.id===selectedId);
+ houses.splice(i,1);
+
+ selectedId=null;
+ document.getElementById("info").style.display="none";
+ updateCounter();
+};
+
+window.closeInfo=()=>{
+ selectedId=null;
+ document.getElementById("info").style.display="none";
+};
+
+function showInfo(id){
+ const h=houses.find(x=>x.id===id);
+ if(!h)return;
+
+ selectedId=id;
+ document.getElementById("infoName").textContent="🏡 "+h.name;
+ document.getElementById("infoLevel").textContent=
+  "المستوى "+h.level+" — "+levelNames[h.level-1]+
+  (h.account?" • "+h.account:"");
+
+ document.getElementById("info").style.display="block";
 }
 
+// تحديد البيت بالضغط عليه
 const raycaster=new THREE.Raycaster();
 const pointer=new THREE.Vector2();
 let downX=0,downY=0;
-renderer.domElement.addEventListener("pointerdown",e=>{downX=e.clientX;downY=e.clientY});
-renderer.domElement.addEventListener("pointerup",e=>{
- if(Math.hypot(e.clientX-downX,e.clientY-downY)>8)return;
- pointer.x=(e.clientX/innerWidth)*2-1;
- pointer.y=-(e.clientY/innerHeight)*2+1;
- raycaster.setFromCamera(pointer,camera);
- const hits=raycaster.intersectObjects(clickable);
- if(hits.length)showInfo(hits[0].object.userData.person);
+
+renderer.domElement.addEventListener("pointerdown",e=>{
+ downX=e.clientX;
+ downY=e.clientY;
 });
 
-window.findHouse=function(){
- const value=document.getElementById("search").value.trim().toLowerCase();
- if(!value){alert("اكتب اسم المتابع");return}
- const found=followers.find(p=>p.name.toLowerCase().includes(value)||(p.account&&p.account.toLowerCase().includes(value)));
- if(!found){alert("لم يتم العثور على المتابع");return}
- controls.target.set(found.x,0,found.z);
- camera.position.set(found.x+25,35,found.z+30);
- showInfo(found);
+renderer.domElement.addEventListener("pointerup",e=>{
+ if(Math.abs(e.clientX-downX)>6||Math.abs(e.clientY-downY)>6)return;
+
+ pointer.x=(e.clientX/innerWidth)*2-1;
+ pointer.y=-(e.clientY/innerHeight)*2+1;
+
+ raycaster.setFromCamera(pointer,camera);
+ const hits=raycaster.intersectObjects(houseRoot.children,true);
+
+ if(!hits.length)return;
+
+ let id=hits[0].object.userData.houseId;
+ if(!id){
+  let p=hits[0].object.parent;
+  while(p&&!id){
+   id=p.userData.houseId;
+   p=p.parent;
+  }
+ }
+
+ if(id)showInfo(id);
+});
+
+// البحث عن المتابع
+window.searchHouse=()=>{
+ const q=document.getElementById("search").value.trim().toLowerCase();
+ if(!q)return;
+
+ const h=houses.find(x=>
+  x.name.toLowerCase().includes(q)||
+  (x.account||"").toLowerCase().includes(q)
+ );
+
+ if(!h){
+  alert("لم يتم العثور على المتابع");
+  return;
+ }
+
+ controls.target.set(h.x,0,h.z);
+ camera.position.set(h.x+45,55,h.z+55);
+ showInfo(h.id);
 };
 
-window.zoomIn=()=>camera.position.multiplyScalar(.85);
-window.zoomOut=()=>camera.position.multiplyScalar(1.15);
+window.zoomIn=()=>{
+ camera.position.multiplyScalar(.85);
+ controls.update();
+};
+
+window.zoomOut=()=>{
+ camera.position.multiplyScalar(1.18);
+ controls.update();
+};
+
 window.resetView=()=>{
  camera.position.set(170,190,210);
  controls.target.set(0,0,0);
- document.getElementById("info").style.display="none";
+ controls.update();
+ closeInfo();
 };
+
+window.addEventListener("resize",()=>{
+ camera.aspect=innerWidth/innerHeight;
+ camera.updateProjectionMatrix();
+ renderer.setSize(innerWidth,innerHeight);
+});
 
 function animate(){
  requestAnimationFrame(animate);
@@ -521,12 +713,6 @@ function animate(){
  renderer.render(scene,camera);
 }
 animate();
-
-window.addEventListener("resize",()=>{
- camera.aspect=innerWidth/innerHeight;
- camera.updateProjectionMatrix();
- renderer.setSize(innerWidth,innerHeight);
-});
 </script>
 </body>
 </html>
