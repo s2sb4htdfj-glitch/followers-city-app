@@ -16,6 +16,7 @@ body{margin:0;overflow:hidden;font-family:Arial;background:#9bd3e2}
 button{border:0;border-radius:10px;padding:10px 13px;background:#286b50;color:white;font-weight:bold;font-size:14px}
 button.secondary{background:#e8eee9;color:#244b3b}
 button.danger{background:#c94141;color:white}
+button:disabled{opacity:.6}
 #add{position:fixed;bottom:18px;right:15px;z-index:6;padding:15px 20px;border-radius:15px;font-size:16px}
 #searchBox{position:fixed;top:67px;right:10px;z-index:5;width:190px}
 #search{width:100%;border:0;border-radius:12px;padding:11px;outline:none}
@@ -40,10 +41,10 @@ button.danger{background:#c94141;color:white}
 #loginMessage{font-size:13px;color:#a33;margin:5px 0 12px;min-height:18px}
 #adminStatus{font-size:12px;color:#286b50}
 @media(max-width:500px){
- #tools button{padding:8px;font-size:11px}
- #top{gap:5px}
- #searchBox{top:66px;width:155px}
- #hint{bottom:82px}
+#tools button{padding:8px;font-size:11px}
+#top{gap:5px}
+#searchBox{top:66px;width:155px}
+#hint{bottom:82px}
 }
 </style>
 </head>
@@ -68,7 +69,6 @@ button.danger{background:#c94141;color:white}
 <div id="searchBox">
  <input id="search" placeholder="🔍 ابحث عن متابع..." oninput="searchHouse()">
 </div>
-
 <div id="hint">اسحب لتحريك المدينة • بإصبعين للتكبير</div>
 <button id="add" onclick="openAdd()">＋ إضافة بيت</button>
 
@@ -205,6 +205,7 @@ supabase.auth.onAuthStateChange((_event,session)=>{
 
 if(adminMode&&!isAdmin)openLogin();
 
+/* إعداد المدينة ثلاثية الأبعاد */
 const scene=new THREE.Scene();
 scene.background=new THREE.Color(0x9bd3e2);
 scene.fog=new THREE.Fog(0x9bd3e2,650,1600);
@@ -260,7 +261,7 @@ window.toggleDayNight=()=>{
 
 const mat=(color,roughness=.85)=>new THREE.MeshStandardMaterial({color,roughness});
 const groundMat=mat(0xd9c69c),roadMat=mat(0x777b7a),lineMat=mat(0xf4e6bd);
-const greenMat=mat(0x39824d),darkGreen=mat(0x235c3c),stoneMat=mat(0xd8cbb2);
+const greenMat=mat(0x39824d),stoneMat=mat(0xd8cbb2);
 
 function box(parent,x,y,z,w,h,d,material){
  const m=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),material);
@@ -304,6 +305,7 @@ for(let p=-500;p<=500;p+=100){
  }
 }
 
+/* النافورة */
 cylinder(scene,0,.15,0,43,43,.3,stoneMat,48);
 cylinder(scene,0,.4,0,12,12,.5,mat(0x78b8c6),40);
 cylinder(scene,0,.8,0,7,7,.4,mat(0x3d9eae),40);
@@ -320,6 +322,7 @@ function landmark(name,x,z,color,w,d,h){
  return g;
 }
 
+/* الجامع */
 {
  const g=landmark("جامع التوابين",-55,-55,0xe6dfce,38,30,13);
  const green=mat(0x27794e);
@@ -333,11 +336,13 @@ function landmark(name,x,z,color,w,d,h){
   roof(g,x,58,0,2,5,2,green);
  }
 }
+/* بيت العمدة */
 {
  const g=landmark("بيت العمدة",55,-55,0xd8c3a1,32,28,15);
  roof(g,0,25,0,23,9,22,mat(0x76513d));
  for(let x of [-10,10])cylinder(g,x,10,16,1,1,18,stoneMat);
 }
+/* المدرسة */
 {
  const g=landmark("المدرسة",-55,55,0xf0d79b,34,26,12);
  box(g,0,15,0,36,3,30,mat(0xb47a4c));
@@ -346,11 +351,13 @@ function landmark(name,x,z,color,w,d,h){
   box(g,x,20,16,4,5,.5,mat(0x5d9cae));
  }
 }
+/* المتحف */
 {
  const g=landmark("المتحف",55,55,0xe6dfd0,30,25,12);
  for(let x=-11;x<=11;x+=7)cylinder(g,x,9,16,1,1,18,mat(0xfaf0dc),12);
  roof(g,0,25,0,18,8,18,mat(0x9b805e));
 }
+/* السوق */
 {
  const g=landmark("السوق",0,75,0xd5b58c,46,20,10);
  const colors=[0xb64c3c,0xd8a13a,0x427b71,0x547a9b,0xa76d91];
@@ -361,6 +368,7 @@ function landmark(name,x,z,color,w,d,h){
   box(g,x,4,16,4,4,.4,mat(0x453b34));
  }
 }
+/* ملعب المدينة */
 {
  const g=new THREE.Group();g.position.set(0,0,-105);scene.add(g);
  box(g,0,.3,0,58,.6,38,mat(0x3b9855));
@@ -404,11 +412,8 @@ const houseColors=[
  {wall:0xf0dfbd,roof:0x6b4938,trim:0xd7b65e}
 ];
 const levelNames=[
- "بيت عربي بسيط",
- "بيت عربي بشرفة",
- "بيت عربي بطابقين",
- "فيلا عربية فخمة",
- "قصر عربي ملكي"
+ "بيت عربي بسيط","بيت عربي بشرفة","بيت عربي بطابقين",
+ "فيلا عربية فخمة","قصر عربي ملكي"
 ];
 const houseRoot=new THREE.Group();scene.add(houseRoot);
 
@@ -417,26 +422,18 @@ function makeHouse(data,index){
  const level=Math.min(5,Math.max(1,Number(data.level)||1));
  const c=houseColors[level-1];
  const wall=mat(c.wall),roofMat=mat(c.roof),trim=mat(c.trim);
- const glass=mat(0x72adba);
- const wood=mat(0x68432f);
- const gold=mat(0xd5ae63);
- const dark=mat(0x76503b);
+ const glass=mat(0x72adba),wood=mat(0x68432f),gold=mat(0xd5ae63);
 
- // قاعدة البيت والجدران الأساسية
  box(g,0,.25,0,11,.5,9,trim);
  box(g,0,3.2,0,10,6,8,wall);
  box(g,0,6.25,0,10.5,.35,8.5,trim);
-
- // زخرفة الواجهة العربية
  box(g,0,5.75,4.08,9.8,.18,.18,gold);
  box(g,0,1,4.08,9.8,.18,.18,trim);
 
- // باب رئيسي
  box(g,0,2,4.12,1.8,4,.22,wood);
  box(g,0,3.95,4.25,1.95,.18,.16,gold);
  cylinder(g,.55,2,4.3,.09,.09,.12,gold,10);
 
- // نوافذ أمامية بإطارات
  for(const x of [-3.2,3.2]){
   box(g,x,4,4.12,1.9,2.1,.2,glass);
   box(g,x-.95,4,4.25,.13,2.3,.12,trim);
@@ -447,23 +444,16 @@ function makeHouse(data,index){
   box(g,x,4,4.3,1.8,.1,.1,trim);
  }
 
- // أقواس زخرفية فوق النوافذ
  function arch(x,y,z,r,color){
-  const a=new THREE.Mesh(
-   new THREE.TorusGeometry(r,.12,8,24,Math.PI),
-   mat(color)
-  );
-  a.position.set(x,y,z);
-  g.add(a);
+  const a=new THREE.Mesh(new THREE.TorusGeometry(r,.12,8,24,Math.PI),mat(color));
+  a.position.set(x,y,z);g.add(a);
  }
  arch(-3.2,5.05,4.18,1,0xc49a62);
  arch(3.2,5.05,4.18,1,0xc49a62);
 
- // درجات المدخل
  box(g,0,.35,5,3,.3,1.2,stoneMat);
  box(g,0,.65,4.65,2.5,.3,.7,trim);
 
- // أعمدة أمامية
  function columns(){
   for(const x of [-4.3,4.3]){
    cylinder(g,x,2.8,4.5,.2,.25,5.5,trim,12);
@@ -471,93 +461,59 @@ function makeHouse(data,index){
    cylinder(g,x,.15,4.5,.35,.35,.25,gold,12);
   }
  }
-
- // شرفة أمامية
  function balcony(y,z){
   box(g,0,y,z,8,.25,1.6,trim);
   box(g,0,y+.7,z-.65,8,.12,.12,gold);
-  for(let x=-3.7;x<=3.7;x+=.75){
-   box(g,x,y+.4,z-.65,.1,.65,.1,trim);
-  }
+  for(let x=-3.7;x<=3.7;x+=.75)box(g,x,y+.4,z-.65,.1,.65,.1,trim);
  }
 
- // المستوى الأول: بيت عربي بسيط بسقف عربي مائل
  if(level===1){
   roof(g,0,8.6,0,8,3.5,8,roofMat);
   box(g,0,6.7,0,10.4,.2,8.4,trim);
-  for(const x of [-3.7,3.7]){
-   box(g,x,7,0,.18,.8,.18,gold);
-  }
+  for(const x of [-3.7,3.7])box(g,x,7,0,.18,.8,.18,gold);
  }
-
- // المستوى الثاني: بيت بشرفة وأعمدة
  if(level===2){
-  columns();
-  balcony(6.2,4.8);
+  columns();balcony(6.2,4.8);
   box(g,0,7,0,10.7,.6,8.7,roofMat);
   box(g,0,7.45,0,8,.25,6.5,trim);
-  for(let x=-3.5;x<=3.5;x+=1.4){
-   box(g,x,7.8,-3,.12,.7,.12,gold);
-  }
+  for(let x=-3.5;x<=3.5;x+=1.4)box(g,x,7.8,-3,.12,.7,.12,gold);
   roof(g,0,9,0,6,2,6,roofMat);
  }
-
- // المستوى الثالث: طابقان وأقواس وشرفة علوية
  if(level===3){
   columns();
   box(g,0,8.5,0,9,4.2,7,wall);
   box(g,0,10.65,0,9.5,.25,7.5,trim);
-
   for(const x of [-2.8,2.8]){
    box(g,x,8.8,3.62,1.7,1.8,.2,glass);
    box(g,x,8.8,3.78,1.9,.12,.12,gold);
    arch(x,9.75,3.7,.9,0xc49a62);
    box(g,x,8.8,3.8,.1,1.7,.1,trim);
   }
-
   balcony(6.45,4.8);
   box(g,0,12,0,9.7,.3,7.7,trim);
   roof(g,0,14.2,0,7.5,3.2,7.5,roofMat);
   cylinder(g,0,16,0,.45,.45,1,gold,12);
  }
-
- // المستوى الرابع: فيلا عربية فخمة
  if(level===4){
-  columns();
-  balcony(6.3,4.8);
-
+  columns();balcony(6.3,4.8);
   box(g,0,8.4,0,9,4.1,7,wall);
   box(g,0,10.5,0,9.5,.3,7.5,gold);
-
   for(const x of [-3,0,3]){
    box(g,x,8.6,3.62,1.5,2,.2,glass);
    box(g,x,8.6,3.78,.12,2.1,.12,trim);
    box(g,x,8.6,3.78,1.6,.12,.12,trim);
    arch(x,9.65,3.7,.75,0xc49a62);
   }
-
   box(g,0,11.1,0,11,.5,9,roofMat);
   box(g,0,11.6,0,8,.3,6.5,trim);
-
-  // قبة صغيرة فوق الفيلا
-  const dome=new THREE.Mesh(
-   new THREE.SphereGeometry(2.1,24,16,0,Math.PI*2,0,Math.PI/2),
-   roofMat
-  );
-  dome.position.set(0,11.8,0);
-  g.add(dome);
+  const dome=new THREE.Mesh(new THREE.SphereGeometry(2.1,24,16,0,Math.PI*2,0,Math.PI/2),roofMat);
+  dome.position.set(0,11.8,0);g.add(dome);
   cylinder(g,0,13.85,0,.12,.12,.7,gold,12);
  }
-
- // المستوى الخامس: قصر عربي ملكي
  if(level===5){
   columns();
-
-  // جناح علوي كبير
   box(g,0,8.5,0,9,4.5,7,wall);
   box(g,0,10.8,0,10,.3,8,trim);
-
-  // شرفات القصر
   balcony(6.5,4.9);
   for(const x of [-3,0,3]){
    box(g,x,8.8,3.62,1.55,2.2,.2,glass);
@@ -565,32 +521,16 @@ function makeHouse(data,index){
    box(g,x,8.8,3.8,1.65,.12,.12,gold);
    arch(x,9.95,3.7,.8,0xd1ad66);
   }
-
-  // سطح القصر
   box(g,0,11.5,0,11,.7,9,roofMat);
   box(g,0,12,0,9,.25,7,trim);
-
-  // قبة مركزية
-  const dome=new THREE.Mesh(
-   new THREE.SphereGeometry(2.6,28,18,0,Math.PI*2,0,Math.PI/2),
-   mat(0x368a83)
-  );
-  dome.position.set(0,12.1,0);
-  g.add(dome);
+  const dome=new THREE.Mesh(new THREE.SphereGeometry(2.6,28,18,0,Math.PI*2,0,Math.PI/2),mat(0x368a83));
+  dome.position.set(0,12.1,0);g.add(dome);
   cylinder(g,0,14.7,0,.15,.15,1,gold,12);
-
-  // قباب جانبية صغيرة
   for(const x of [-4,4]){
-   const small=new THREE.Mesh(
-    new THREE.SphereGeometry(1.1,20,12,0,Math.PI*2,0,Math.PI/2),
-    mat(0x368a83)
-   );
-   small.position.set(x,11.9,0);
-   g.add(small);
+   const small=new THREE.Mesh(new THREE.SphereGeometry(1.1,20,12,0,Math.PI*2,0,Math.PI/2),mat(0x368a83));
+   small.position.set(x,11.9,0);g.add(small);
    cylinder(g,x,12.9,0,.1,.1,.5,gold,10);
   }
-
-  // أبراج القصر
   for(const x of [-4.5,4.5]){
    cylinder(g,x,7,0,.75,.9,13,wall,12);
    cylinder(g,x,13.5,0,1,.8,.3,gold,12);
@@ -598,13 +538,8 @@ function makeHouse(data,index){
   }
  }
 
- // حواف وزخارف ذهبية جانبية
- for(const z of [-3.8,3.8]){
-  box(g,0,.7,z,10,.15,.15,gold);
- }
- for(const x of [-4.9,4.9]){
-  box(g,x,3,0,.15,5.8,7.8,trim);
- }
+ for(const z of [-3.8,3.8])box(g,0,.7,z,10,.15,.15,gold);
+ for(const x of [-4.9,4.9])box(g,x,3,0,.15,5.8,7.8,trim);
 
  const label=makeLabel(data.name);
  label.position.y=19;g.add(label);
@@ -613,6 +548,7 @@ function makeHouse(data,index){
  return g;
 }
 
+/* توزيع البيوت */
 function getLotPosition(index){
  const cols=32;let found=0;
  for(let r=0;r<80;r++){
@@ -629,13 +565,11 @@ function getLotPosition(index){
 
 function addHouseToScene(data){
  if(houses.some(h=>String(h.id)===String(data.id)))return;
-
  const fallback=getLotPosition(houses.length);
  const pos={
   x:data.x!==null&&data.x!==undefined&&data.x!==""?Number(data.x):fallback.x,
   z:data.z!==null&&data.z!==undefined&&data.z!==""?Number(data.z):fallback.z
  };
-
  const normalized={
   ...data,
   level:Math.min(5,Math.max(1,Number(data.level)||1)),
@@ -643,7 +577,6 @@ function addHouseToScene(data){
   z:Number.isFinite(pos.z)?pos.z:fallback.z,
   account:data.account||""
  };
-
  const obj=makeHouse(normalized,houses.length);
  obj.position.set(normalized.x,0,normalized.z);
  houseRoot.add(obj);
@@ -669,13 +602,10 @@ function updateCounter(){
  document.getElementById("counter").textContent="🏘️ المتابعون: "+houses.length;
 }
 
+/* تحميل البيانات من أسماء الأعمدة الصحيحة في Supabase */
 async function loadHouses(){
  document.getElementById("counter").textContent="⏳ جارٍ تحميل البيوت...";
-
- const {data,error}=await supabase
-  .from("houses")
-  .select("*")
-  .order("created_at",{ascending:true});
+ const {data,error}=await supabase.from("houses").select("*").order("created_at",{ascending:true});
 
  if(error){
   console.error("خطأ تحميل البيوت:",error);
@@ -695,19 +625,19 @@ async function loadHouses(){
    account:row.account||"",
    level:row.level||1,
    x:row.x!==null&&row.x!==undefined?Number(row.x):fallback.x,
-   z:row.z!==null&&row.z!==undefined?Number(row.z):
-     row.y!==null&&row.y!==undefined?Number(row.y):fallback.z,
-   y:row.y,
+   z:row.Z!==null&&row.Z!==undefined?Number(row.Z):
+     row.Y!==null&&row.Y!==undefined?Number(row.Y):fallback.z,
+   y:row.Y,
    district:row.district||"المدينة",
-   house_number:row.house_number
+   house_number:row.house_numbe
   });
  });
-
  updateCounter();
  console.log("تم تحميل البيوت:",houses.length);
 }
 await loadHouses();
 
+/* الإضافة والتعديل والحذف */
 window.openAdd=()=>{
  if(!isAdmin){alert("هذه الخاصية للمدير فقط");return}
  editingId=null;chosenLevel=1;
@@ -740,36 +670,37 @@ window.saveHouse=async()=>{
    const old=houses.find(h=>String(h.id)===String(editingId));
    if(!old)throw new Error("لم يتم العثور على البيت");
 
-   const changes={name,account,level:chosenLevel};
-   const {data,error}=await supabase
-    .from("houses")
-    .update(changes)
-    .eq("id",editingId)
-    .select("*")
-    .single();
+   const changes={name:name,account:account,level:chosenLevel};
+   const {data,error}=await supabase.from("houses")
+    .update(changes).eq("id",editingId).select("*").single();
 
    if(error)throw error;
-   updateHouseInScene({...old,...data});
+   updateHouseInScene({
+    ...old,
+    id:data.id,
+    name:data.name,
+    account:data.account,
+    level:data.level
+   });
    editingId=null;
 
   }else{
    const pos=getLotPosition(houses.length);
+
+   /* انتبه: أسماء الأعمدة هنا مطابقة تماماً لجدولك */
    const record={
     name:name,
     account:account,
     level:chosenLevel,
     x:pos.x,
-    y:0,
-    z:pos.z,
-    house_number:houses.length+1,
+    Y:0,
+    Z:pos.z,
+    house_numbe:houses.length+1,
     district:"المدينة"
    };
 
-   const {data,error}=await supabase
-    .from("houses")
-    .insert(record)
-    .select("*")
-    .single();
+   const {data,error}=await supabase.from("houses")
+    .insert(record).select("*").single();
 
    if(error)throw error;
 
@@ -779,13 +710,12 @@ window.saveHouse=async()=>{
     account:data.account||account,
     level:data.level||chosenLevel,
     x:data.x!==null&&data.x!==undefined?Number(data.x):pos.x,
-    z:data.z!==null&&data.z!==undefined?Number(data.z):pos.z,
-    y:data.y,
-    house_number:data.house_number,
+    z:data.Z!==null&&data.Z!==undefined?Number(data.Z):pos.z,
+    y:data.Y,
+    house_number:data.house_numbe,
     district:data.district
    });
   }
-
   closeModal();
  }catch(error){
   console.error("خطأ حفظ البيت:",error);
@@ -840,6 +770,7 @@ function showInfo(id){
  document.getElementById("info").style.display="block";
 }
 
+/* اختيار البيوت بالضغط */
 const raycaster=new THREE.Raycaster();
 const pointer=new THREE.Vector2();
 let downX=0,downY=0;
@@ -847,7 +778,6 @@ let downX=0,downY=0;
 renderer.domElement.addEventListener("pointerdown",e=>{
  downX=e.clientX;downY=e.clientY;
 });
-
 renderer.domElement.addEventListener("pointerup",e=>{
  if(Math.abs(e.clientX-downX)>6||Math.abs(e.clientY-downY)>6)return;
  pointer.x=(e.clientX/innerWidth)*2-1;
@@ -863,6 +793,7 @@ renderer.domElement.addEventListener("pointerup",e=>{
  if(id)showInfo(id);
 });
 
+/* البحث */
 window.searchHouse=()=>{
  const q=document.getElementById("search").value.trim().toLowerCase();
  if(!q)return;
@@ -876,6 +807,7 @@ window.searchHouse=()=>{
  showInfo(h.id);
 };
 
+/* التحكم بالكاميرا */
 window.zoomIn=()=>{camera.position.multiplyScalar(.85);controls.update()};
 window.zoomOut=()=>{camera.position.multiplyScalar(1.18);controls.update()};
 window.resetView=()=>{
