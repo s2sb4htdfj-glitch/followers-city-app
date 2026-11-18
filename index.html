@@ -9,62 +9,36 @@
 *{box-sizing:border-box}
 body{margin:0;overflow:hidden;font-family:Arial;background:#9bd3e2}
 #city{position:fixed;inset:0}
-#top{
- position:fixed;top:10px;right:10px;left:10px;z-index:5;
- display:flex;align-items:center;justify-content:space-between;
- gap:8px;pointer-events:none
-}
-.panel{
- background:#ffffffed;border-radius:15px;padding:10px 13px;
- box-shadow:0 3px 14px #0002;pointer-events:auto
-}
+#top{position:fixed;top:10px;right:10px;left:10px;z-index:5;display:flex;align-items:center;justify-content:space-between;gap:8px;pointer-events:none}
+.panel{background:#ffffffed;border-radius:15px;padding:10px 13px;box-shadow:0 3px 14px #0002;pointer-events:auto}
 #counter{font-weight:bold;color:#244b3b}
 #tools{display:flex;gap:6px;align-items:center}
-button{
- border:0;border-radius:10px;padding:10px 13px;
- background:#286b50;color:white;font-weight:bold;font-size:14px
-}
+button{border:0;border-radius:10px;padding:10px 13px;background:#286b50;color:white;font-weight:bold;font-size:14px}
 button.secondary{background:#e8eee9;color:#244b3b}
 button.danger{background:#c94141;color:white}
-#add{position:fixed;bottom:18px;right:15px;z-index:6;
- padding:15px 20px;border-radius:15px;font-size:16px}
+#add{position:fixed;bottom:18px;right:15px;z-index:6;padding:15px 20px;border-radius:15px;font-size:16px}
 #searchBox{position:fixed;top:67px;right:10px;z-index:5;width:190px}
 #search{width:100%;border:0;border-radius:12px;padding:11px;outline:none}
-#modal{
- display:none;position:fixed;inset:0;background:#0009;z-index:20;
- align-items:center;justify-content:center;padding:15px
-}
-#panel{
- width:min(420px,100%);background:white;border-radius:20px;
- padding:20px;max-height:90vh;overflow:auto
-}
-#panel h2{text-align:center;margin:0 0 17px;color:#244b3b}
-#panel input{
- width:100%;padding:13px;margin:6px 0 12px;border:1px solid #ddd;
- border-radius:10px;font-size:15px;direction:auto
-}
+#modal,#loginModal{display:none;position:fixed;inset:0;background:#0009;z-index:20;align-items:center;justify-content:center;padding:15px}
+#panel,#loginPanel{width:min(420px,100%);background:white;border-radius:20px;padding:20px;max-height:90vh;overflow:auto}
+#panel h2,#loginPanel h2{text-align:center;margin:0 0 17px;color:#244b3b}
+#panel input,#loginPanel input{width:100%;padding:13px;margin:6px 0 12px;border:1px solid #ddd;border-radius:10px;font-size:15px;direction:auto}
 .levels{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin:10px 0 17px}
-.level{
- border:2px solid #e4e4e4;border-radius:12px;padding:12px 5px;
- text-align:center;background:#fafafa;color:#333;cursor:pointer
-}
+.level{border:2px solid #e4e4e4;border-radius:12px;padding:12px 5px;text-align:center;background:#fafafa;color:#333;cursor:pointer}
 .level.selected{border-color:#25875d;background:#e8f6ee}
 .level .emoji{font-size:27px;display:block;margin-bottom:5px}
 .level:last-child{grid-column:1/-1}
 .actions{display:flex;gap:9px}
 .actions button{flex:1;padding:13px}
-#info{
- display:none;position:fixed;bottom:15px;left:12px;right:12px;
- z-index:10;background:#fff;border-radius:17px;padding:14px;
- box-shadow:0 4px 18px #0003
-}
+#info{display:none;position:fixed;bottom:15px;left:12px;right:12px;z-index:10;background:#fff;border-radius:17px;padding:14px;box-shadow:0 4px 18px #0003}
 #infoTop{display:flex;justify-content:space-between;align-items:center;gap:10px}
 #infoName{font-size:17px;font-weight:bold;color:#244b3b}
 #infoLevel{font-size:13px;color:#777;margin-top:5px;overflow-wrap:anywhere}
 #infoActions{display:flex;gap:7px;margin-top:12px}
 #infoActions button{flex:1}
-#hint{position:fixed;bottom:85px;right:12px;color:#244b3b;
- background:#ffffffd9;padding:8px 11px;border-radius:10px;font-size:12px}
+#hint{position:fixed;bottom:85px;right:12px;color:#244b3b;background:#ffffffd9;padding:8px 11px;border-radius:10px;font-size:12px}
+#loginMessage{font-size:13px;color:#a33;margin:5px 0 12px;min-height:18px}
+#adminStatus{font-size:12px;color:#286b50}
 @media(max-width:500px){
  #tools button{padding:8px;font-size:11px}
  #top{gap:5px}
@@ -77,12 +51,17 @@ button.danger{background:#c94141;color:white}
 <div id="city"></div>
 
 <div id="top">
- <div class="panel" id="counter">🏘️ المتابعون: 0</div>
+ <div class="panel">
+  <div id="counter">🏘️ المتابعون: 0</div>
+  <div id="adminStatus"></div>
+ </div>
  <div id="tools">
   <button class="secondary" onclick="zoomIn()">＋</button>
   <button class="secondary" onclick="zoomOut()">－</button>
   <button class="secondary" onclick="resetView()">⌂</button>
   <button class="secondary" id="dayNightBtn" onclick="toggleDayNight()">🌙 ليل</button>
+  <button class="secondary" id="loginBtn" style="display:none" onclick="openLogin()">🔐 دخول</button>
+  <button class="secondary" id="logoutBtn" style="display:none" onclick="logoutAdmin()">خروج</button>
  </div>
 </div>
 
@@ -113,25 +92,28 @@ button.danger{background:#c94141;color:white}
   <input id="followerName" placeholder="اسم المتابع">
   <input id="followerAccount" placeholder="حساب المتابع أو رابطه">
   <div class="levels">
-   <div class="level selected" data-level="1" onclick="chooseLevel(1)">
-    <span class="emoji">🏠</span>المستوى 1<br>بيت كلاسيكي
-   </div>
-   <div class="level" data-level="2" onclick="chooseLevel(2)">
-    <span class="emoji">🏡</span>المستوى 2<br>بيت عصري
-   </div>
-   <div class="level" data-level="3" onclick="chooseLevel(3)">
-    <span class="emoji">🏘️</span>المستوى 3<br>بيت حجري
-   </div>
-   <div class="level" data-level="4" onclick="chooseLevel(4)">
-    <span class="emoji">🏛️</span>المستوى 4<br>فيلا فاخرة
-   </div>
-   <div class="level" data-level="5" onclick="chooseLevel(5)">
-    <span class="emoji">👑</span>المستوى 5<br>قصر ملكي
-   </div>
+   <div class="level selected" data-level="1" onclick="chooseLevel(1)"><span class="emoji">🏠</span>المستوى 1<br>بيت كلاسيكي</div>
+   <div class="level" data-level="2" onclick="chooseLevel(2)"><span class="emoji">🏡</span>المستوى 2<br>بيت عصري</div>
+   <div class="level" data-level="3" onclick="chooseLevel(3)"><span class="emoji">🏘️</span>المستوى 3<br>بيت حجري</div>
+   <div class="level" data-level="4" onclick="chooseLevel(4)"><span class="emoji">🏛️</span>المستوى 4<br>فيلا فاخرة</div>
+   <div class="level" data-level="5" onclick="chooseLevel(5)"><span class="emoji">👑</span>المستوى 5<br>قصر ملكي</div>
   </div>
   <div class="actions">
-   <button onclick="saveHouse()">حفظ البيت</button>
+   <button id="saveHouseBtn" onclick="saveHouse()">حفظ البيت</button>
    <button class="secondary" onclick="closeModal()">إلغاء</button>
+  </div>
+ </div>
+</div>
+
+<div id="loginModal">
+ <div id="loginPanel">
+  <h2>🔐 دخول مدير المدينة</h2>
+  <input id="adminEmail" type="email" placeholder="البريد الإلكتروني">
+  <input id="adminPassword" type="password" placeholder="كلمة المرور">
+  <div id="loginMessage"></div>
+  <div class="actions">
+   <button onclick="loginAdmin()">دخول</button>
+   <button class="secondary" onclick="closeLogin()">إلغاء</button>
   </div>
  </div>
 </div>
@@ -140,7 +122,8 @@ button.danger{background:#c94141;color:white}
 {
  "imports":{
   "three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
-  "three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+  "three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/",
+  "@supabase/supabase-js":"https://esm.sh/@supabase/supabase-js@2"
  }
 }
 </script>
@@ -148,7 +131,84 @@ button.danger{background:#c94141;color:white}
 <script type="module">
 import * as THREE from "three";
 import {OrbitControls} from "three/addons/controls/OrbitControls.js";
+import {createClient} from "@supabase/supabase-js";
 
+/* إعدادات قاعدة البيانات */
+const SUPABASE_URL="https://kvpsxvinstwgrtonuyca.supabase.co";
+const SUPABASE_KEY="sb_publishable_WqbGifL3vqb1HSRrj6pcFw_nYfBuL-l";
+const ADMIN_ID="b0a2d715-80ff-4d62-a9f1-3bd3f60acb3e";
+const supabase=createClient(SUPABASE_URL,SUPABASE_KEY);
+
+const adminMode=new URLSearchParams(location.search).get("admin")==="1";
+let isAdmin=false;
+let houses=[];
+let selectedId=null,editingId=null,chosenLevel=1;
+
+/* واجهة الزائر والمدير */
+const addButton=document.getElementById("add");
+const infoActions=document.getElementById("infoActions");
+const loginBtn=document.getElementById("loginBtn");
+const logoutBtn=document.getElementById("logoutBtn");
+
+addButton.style.display="none";
+loginBtn.style.display=adminMode?"block":"none";
+
+function refreshPermissions(){
+ isAdmin=adminMode&&window.currentUserId===ADMIN_ID;
+ addButton.style.display=isAdmin?"block":"none";
+ infoActions.style.display=isAdmin?"flex":"none";
+ loginBtn.style.display=adminMode&&!isAdmin?"block":"none";
+ logoutBtn.style.display=isAdmin?"block":"none";
+ document.getElementById("adminStatus").textContent=
+  isAdmin?"👑 وضع المدير":adminMode?"وضع الإدارة — يرجى تسجيل الدخول":"";
+}
+
+/* تسجيل الدخول */
+window.openLogin=()=>{
+ document.getElementById("loginMessage").textContent="";
+ document.getElementById("loginModal").style.display="flex";
+};
+window.closeLogin=()=>{
+ document.getElementById("loginModal").style.display="none";
+};
+window.loginAdmin=async()=>{
+ const email=document.getElementById("adminEmail").value.trim();
+ const password=document.getElementById("adminPassword").value;
+ const message=document.getElementById("loginMessage");
+ if(!email||!password){message.textContent="اكتب البريد الإلكتروني وكلمة المرور";return}
+ message.textContent="جارٍ تسجيل الدخول...";
+ const {data,error}=await supabase.auth.signInWithPassword({email,password});
+ if(error){message.textContent="تعذر تسجيل الدخول: "+error.message;return}
+ if(data.user.id!==ADMIN_ID){
+  await supabase.auth.signOut();
+  message.textContent="هذا الحساب ليس حساب مدير المدينة";
+  return;
+ }
+ window.currentUserId=data.user.id;
+ refreshPermissions();
+ closeLogin();
+ alert("تم تسجيل دخول المدير بنجاح");
+};
+window.logoutAdmin=async()=>{
+ await supabase.auth.signOut();
+ window.currentUserId=null;
+ refreshPermissions();
+ closeInfo();
+ alert("تم تسجيل الخروج");
+};
+
+const {data:sessionData}=await supabase.auth.getSession();
+window.currentUserId=sessionData.session?.user?.id||null;
+refreshPermissions();
+
+supabase.auth.onAuthStateChange((_event,session)=>{
+ window.currentUserId=session?.user?.id||null;
+ refreshPermissions();
+});
+
+if(adminMode&&!isAdmin)openLogin();
+
+/* إعداد المدينة */
 const scene=new THREE.Scene();
 scene.background=new THREE.Color(0x9bd3e2);
 scene.fog=new THREE.Fog(0x9bd3e2,650,1600);
@@ -189,33 +249,24 @@ moon.position.set(150,180,-100);
 scene.add(moon);
 
 let isNight=false;
-
 window.toggleDayNight=()=>{
  isNight=!isNight;
  if(isNight){
   scene.background.set(0x101b35);
   scene.fog.color.set(0x101b35);
-  sun.intensity=.12;
-  hemi.intensity=.35;
-  moon.intensity=.8;
+  sun.intensity=.12;hemi.intensity=.35;moon.intensity=.8;
   document.getElementById("dayNightBtn").textContent="☀️ نهار";
  }else{
   scene.background.set(0x9bd3e2);
   scene.fog.color.set(0x9bd3e2);
-  sun.intensity=2.2;
-  hemi.intensity=2;
-  moon.intensity=0;
+  sun.intensity=2.2;hemi.intensity=2;moon.intensity=0;
   document.getElementById("dayNightBtn").textContent="🌙 ليل";
  }
 };
 
 const mat=(color,roughness=.85)=>new THREE.MeshStandardMaterial({color,roughness});
-const groundMat=mat(0xd9c69c);
-const roadMat=mat(0x777b7a);
-const lineMat=mat(0xf4e6bd);
-const greenMat=mat(0x39824d);
-const darkGreen=mat(0x235c3c);
-const stoneMat=mat(0xd8cbb2);
+const groundMat=mat(0xd9c69c),roadMat=mat(0x777b7a),lineMat=mat(0xf4e6bd);
+const greenMat=mat(0x39824d),darkGreen=mat(0x235c3c),stoneMat=mat(0xd8cbb2);
 
 function box(parent,x,y,z,w,h,d,material){
  const m=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),material);
@@ -234,7 +285,7 @@ function roof(parent,x,y,z,w,h,d,material,rotation=0){
 
 box(scene,0,-1,0,1100,2,1100,groundMat);
 
-// الطرق الرئيسية
+/* الطرق */
 for(let p=-500;p<=500;p+=100){
  box(scene,p,.02,0,12,.08,1100,roadMat);
  box(scene,0,.025,p,1100,.08,12,roadMat);
@@ -244,7 +295,7 @@ for(let p=-500;p<=500;p+=100){
  }
 }
 
-// أشجار الشوارع
+/* الأشجار */
 function tree(x,z){
  const g=new THREE.Group();g.position.set(x,0,z);scene.add(g);
  cylinder(g,0,3,0,.65,.85,6,mat(0x86603d));
@@ -257,24 +308,21 @@ function tree(x,z){
 }
 for(let p=-500;p<=500;p+=100){
  for(let n=-480;n<=480;n+=30){
-  tree(p+10,n+10);
-  tree(n+10,p-10);
+  tree(p+10,n+10);tree(n+10,p-10);
  }
 }
 
-// ساحة مركزية
+/* الساحة والنافورة */
 cylinder(scene,0,.15,0,43,43,.3,stoneMat,48);
 cylinder(scene,0,.4,0,12,12,.5,mat(0x78b8c6),40);
 cylinder(scene,0,.8,0,7,7,.4,mat(0x3d9eae),40);
 cylinder(scene,0,1.2,0,2,2,.4,mat(0xbcecf1),24);
-
-// نافورة
 for(let i=0;i<6;i++){
  const a=i*Math.PI/3;
  cylinder(scene,Math.cos(a)*8,1,Math.sin(a)*8,.6,.6,2,mat(0x9edce3));
 }
 
-// مباني المدينة
+/* مباني المدينة */
 function landmark(name,x,z,color,w,d,h){
  const g=new THREE.Group();g.position.set(x,0,z);scene.add(g);
  box(g,0,h/2,0,w,h,d,mat(color));
@@ -282,7 +330,7 @@ function landmark(name,x,z,color,w,d,h){
  return g;
 }
 
-// جامع التوابين
+/* جامع التوابين */
 {
  const g=landmark("جامع التوابين",-55,-55,0xe6dfce,38,30,13);
  const green=mat(0x27794e);
@@ -297,16 +345,14 @@ function landmark(name,x,z,color,w,d,h){
  }
 }
 
-// بيت العمدة
+/* بيت العمدة */
 {
  const g=landmark("بيت العمدة",55,-55,0xd8c3a1,32,28,15);
  roof(g,0,25,0,23,9,22,mat(0x76513d));
- for(let x=-10;x<=10;x+=10){
-  cylinder(g,x,10,16,1,1,18,stoneMat);
- }
+ for(let x=-10;x<=10;x+=10)cylinder(g,x,10,16,1,1,18,stoneMat);
 }
 
-// المدرسة
+/* المدرسة */
 {
  const g=landmark("المدرسة",-55,55,0xf0d79b,34,26,12);
  box(g,0,15,0,36,3,30,mat(0xb47a4c));
@@ -316,16 +362,14 @@ function landmark(name,x,z,color,w,d,h){
  }
 }
 
-// المتحف
+/* المتحف */
 {
  const g=landmark("المتحف",55,55,0xe6dfd0,30,25,12);
- for(let x=-11;x<=11;x+=7){
-  cylinder(g,x,9,16,1,1,18,mat(0xfaf0dc),12);
- }
+ for(let x=-11;x<=11;x+=7)cylinder(g,x,9,16,1,1,18,mat(0xfaf0dc),12);
  roof(g,0,25,0,18,8,18,mat(0x9b805e));
 }
 
-// السوق
+/* السوق */
 {
  const g=landmark("السوق",0,75,0xd5b58c,46,20,10);
  const colors=[0xb64c3c,0xd8a13a,0x427b71,0x547a9b,0xa76d91];
@@ -337,7 +381,7 @@ function landmark(name,x,z,color,w,d,h){
  }
 }
 
-// ملعب
+/* الملعب */
 {
  const g=new THREE.Group();g.position.set(0,0,-105);scene.add(g);
  box(g,0,.3,0,58,.6,38,mat(0x3b9855));
@@ -348,33 +392,24 @@ function landmark(name,x,z,color,w,d,h){
  cylinder(g,0,.7,0,7,7,.15,white,32);
 }
 
+/* اللوحات */
 function makeLabel(text,width=19){
  const canvas=document.createElement("canvas");
  canvas.width=512;canvas.height=128;
  const ctx=canvas.getContext("2d");
  ctx.fillStyle="rgba(255,255,255,.94)";
- ctx.beginPath();
- ctx.roundRect(8,8,496,112,25);
- ctx.fill();
- ctx.fillStyle="#244b3b";
- ctx.font="bold 43px Arial";
- ctx.textAlign="center";
- ctx.textBaseline="middle";
+ ctx.beginPath();ctx.roundRect(8,8,496,112,25);ctx.fill();
+ ctx.fillStyle="#244b3b";ctx.font="bold 43px Arial";
+ ctx.textAlign="center";ctx.textBaseline="middle";
  ctx.fillText(text,256,64);
  const texture=new THREE.CanvasTexture(canvas);
  const sprite=new THREE.Sprite(new THREE.SpriteMaterial({map:texture,transparent:true}));
- sprite.scale.set(width,width*.25,1);
- sprite.position.y=12;
+ sprite.scale.set(width,width*.25,1);sprite.position.y=12;
  return sprite;
 }
-
-// أسماء المعالم فوق المباني
 function addLandmarkLabel(text,x,y,z){
- const tag=makeLabel(text,30);
- tag.position.set(x,y,z);
- scene.add(tag);
+ const tag=makeLabel(text,30);tag.position.set(x,y,z);scene.add(tag);
 }
-
 addLandmarkLabel("جامع التوابين",-55,72,-55);
 addLandmarkLabel("بيت العمدة",55,34,-55);
 addLandmarkLabel("المدرسة",-55,32,55);
@@ -382,7 +417,7 @@ addLandmarkLabel("المتحف",55,32,55);
 addLandmarkLabel("السوق",0,27,75);
 addLandmarkLabel("ملعب المدينة",0,17,-105);
 
-// ألوان وتصاميم المستويات
+/* تصاميم البيوت */
 const houseColors=[
  {wall:0xe6c99e,roof:0x9b5940,trim:0xf5e5c9},
  {wall:0xe9e7df,roof:0x485d69,trim:0x6da6a0},
@@ -391,27 +426,19 @@ const houseColors=[
  {wall:0xf0dfbd,roof:0x6b4938,trim:0xd7b65e}
 ];
 const levelNames=["بيت كلاسيكي","بيت عصري","بيت حجري","فيلا فاخرة","قصر ملكي"];
-const houses=[];
-let selectedId=null,editingId=null,chosenLevel=1;
 const houseRoot=new THREE.Group();scene.add(houseRoot);
 
 function makeHouse(data,index){
  const g=new THREE.Group();
- const c=houseColors[data.level-1];
+ const c=houseColors[(data.level||1)-1];
  const wall=mat(c.wall),roofMat=mat(c.roof),trim=mat(c.trim);
-
- // أبعاد موحدة لجميع البيوت
  box(g,0,3.2,0,10,6.4,8,wall);
  box(g,0,6.5,0,10.5,.35,8.5,trim);
-
- // الباب والنوافذ
  box(g,0,2,4.08,1.7,4,.18,mat(0x684632));
  for(const x of [-3,3]){
   box(g,x,4,4.12,2,2,.2,mat(0x6da9b5));
   box(g,x,4,4.25,.15,2.2,.1,trim);
  }
-
- // شرفة أمامية موحدة
  box(g,0,2.1,5.1,6,.25,2,trim);
  for(const x of [-2.5,0,2.5])box(g,x,2.8,6,.15,1.3,.15,trim);
 
@@ -425,9 +452,7 @@ function makeHouse(data,index){
  }
  if(data.level===3){
   roof(g,0,9,0,7.7,4.2,8,roofMat);
-  for(let x of [-4,4]){
-   box(g,x,5,0,.35,8,.35,trim);
-  }
+  for(let x of [-4,4])box(g,x,5,0,.35,8,.35,trim);
   box(g,0,8.5,0,3,.4,3,trim);
  }
  if(data.level===4){
@@ -441,26 +466,19 @@ function makeHouse(data,index){
   cylinder(g,0,9,0,2.4,2.4,1,trim,20);
   const dome=new THREE.Mesh(new THREE.SphereGeometry(2.4,16,12,0,Math.PI*2,0,Math.PI/2),roofMat);
   dome.position.y=9.5;g.add(dome);
-  for(let x of [-4,4]){
-   cylinder(g,x,4,3.8,.3,.3,8,trim,10);
-  }
+  for(let x of [-4,4])cylinder(g,x,4,3.8,.3,.3,8,trim,10);
   box(g,0,8,0,8,.3,7,trim);
  }
-
- // اسم المتابع فوق بيته
  const label=makeLabel(data.name);
- label.position.y=15;
- g.add(label);
-
+ label.position.y=15;g.add(label);
  g.userData.houseId=data.id;
  g.traverse(o=>{if(o.isMesh)o.userData.houseId=data.id});
  return g;
 }
 
-// مواقع منتظمة مع فراغات للشوارع
+/* توزيع البيوت */
 function getLotPosition(index){
- const cols=32;
- let found=0;
+ const cols=32;let found=0;
  for(let r=0;r<80;r++){
   for(let c=0;c<cols;c++){
    const x=(Math.floor(c/4)*86+(c%4)*18)-340;
@@ -473,17 +491,26 @@ function getLotPosition(index){
  return {x:0,z:0};
 }
 
-function addHouse(data){
- const pos=getLotPosition(houses.length);
- data.x=pos.x;data.z=pos.z;
- const obj=makeHouse(data,houses.length);
+function addHouseToScene(data){
+ if(houses.some(h=>h.id===data.id))return;
+ const pos={
+  x:typeof data.x==="number"?data.x:getLotPosition(houses.length).x,
+  z:typeof data.z==="number"?data.z:
+    typeof data.y==="number"?data.y:getLotPosition(houses.length).z
+ };
+ const normalized={
+  ...data,
+  level:Math.min(5,Math.max(1,Number(data.level)||1)),
+  x:pos.x,z:pos.z,account:data.account||""
+ };
+ const obj=makeHouse(normalized,houses.length);
  obj.position.set(pos.x,0,pos.z);
  houseRoot.add(obj);
- houses.push({...data,object:obj});
+ houses.push({...normalized,object:obj});
  updateCounter();
 }
 
-function updateHouse(data){
+function updateHouseInScene(data){
  const i=houses.findIndex(h=>h.id===data.id);
  if(i<0)return;
  const old=houses[i];
@@ -499,63 +526,51 @@ function updateHouse(data){
 
 function updateCounter(){
  document.getElementById("counter").textContent="🏘️ المتابعون: "+houses.length;
- saveLocal();
 }
 
-// حفظ معلومات البيوت على نفس المتصفح
-function saveLocal(){
- try{
-  localStorage.setItem("followersCityHouses",JSON.stringify(
-   houses.map(({object,...h})=>h)
-  ));
- }catch(e){
-  console.warn("تعذر حفظ البيوت",e);
-  alert("تعذر حفظ البيوت في المتصفح");
+/* تحميل البيوت من قاعدة البيانات */
+async function loadHouses(){
+ document.getElementById("counter").textContent="⏳ جارٍ تحميل البيوت...";
+ const {data,error}=await supabase
+  .from("houses")
+  .select("id,name,account,level,x,y,z,house_number,district")
+  .order("created_at",{ascending:true});
+
+ if(error){
+  console.error(error);
+  document.getElementById("counter").textContent="تعذر تحميل البيوت";
+  alert("تعذر تحميل البيوت من قاعدة البيانات. تحقق من الاتصال والسياسات.");
+  return;
  }
+ houses.forEach(h=>houseRoot.remove(h.object));
+ houses=[];
+ (data||[]).forEach((row,index)=>{
+  const fallback=getLotPosition(index);
+  addHouseToScene({
+   id:row.id,
+   name:row.name||"متابع",
+   account:row.account||"",
+   level:row.level||1,
+   x:typeof row.x==="number"?row.x:fallback.x,
+   z:typeof row.z==="number"?row.z:
+     typeof row.y==="number"?row.y:fallback.z
+  });
+ });
+ updateCounter();
 }
+await loadHouses();
 
-// استرجاع البيوت بعد تحديث الصفحة
-function loadLocal(){
- try{
-  const data=JSON.parse(localStorage.getItem("followersCityHouses")||"[]");
-  if(Array.isArray(data)){
-   data.forEach(h=>{
-    // التحقق من مستوى البيت
-    if(!h.level||h.level<1||h.level>5)h.level=1;
-    // الحفاظ على موقع البيت المحفوظ
-    if(typeof h.x!=="number"||typeof h.z!=="number"){
-     const pos=getLotPosition(houses.length);
-     h.x=pos.x;
-     h.z=pos.z;
-    }
-    const obj=makeHouse(h,houses.length);
-    obj.position.set(h.x,0,h.z);
-    houseRoot.add(obj);
-    houses.push({...h,object:obj});
-   });
-  }
- }catch(e){
-  console.warn("تعذر تحميل البيوت المحفوظة",e);
- }
- document.getElementById("counter").textContent="🏘️ المتابعون: "+houses.length;
-}
-loadLocal();
-
-// نافذة الإضافة والتعديل
+/* إضافة بيت أو تعديله في Supabase */
 window.openAdd=()=>{
- editingId=null;
- chosenLevel=1;
+ if(!isAdmin){alert("هذه الخاصية للمدير فقط");return}
+ editingId=null;chosenLevel=1;
  document.getElementById("modalTitle").textContent="🏡 إضافة بيت جديد";
  document.getElementById("followerName").value="";
  document.getElementById("followerAccount").value="";
  chooseLevel(1);
  document.getElementById("modal").style.display="flex";
 };
-
-window.closeModal=()=>{
- document.getElementById("modal").style.display="none";
-};
-
+window.closeModal=()=>document.getElementById("modal").style.display="none";
 window.chooseLevel=(level)=>{
  chosenLevel=level;
  document.querySelectorAll(".level").forEach(el=>{
@@ -563,33 +578,52 @@ window.chooseLevel=(level)=>{
  });
 };
 
-window.saveHouse=()=>{
+window.saveHouse=async()=>{
+ if(!isAdmin){alert("هذه الخاصية للمدير فقط");return}
  const name=document.getElementById("followerName").value.trim();
  const account=document.getElementById("followerAccount").value.trim();
+ if(!name){alert("اكتب اسم المتابع أولاً");return}
 
- if(!name){
-  alert("اكتب اسم المتابع أولاً");
-  return;
+ const btn=document.getElementById("saveHouseBtn");
+ btn.disabled=true;btn.textContent="جارٍ الحفظ...";
+
+ try{
+  if(editingId){
+   const old=houses.find(h=>h.id===editingId);
+   if(!old)throw new Error("لم يتم العثور على البيت");
+   const changes={name,account,level:chosenLevel};
+   const {error}=await supabase.from("houses").update(changes).eq("id",editingId);
+   if(error)throw error;
+   updateHouseInScene({...old,...changes});
+   editingId=null;
+  }else{
+   const pos=getLotPosition(houses.length);
+   const record={
+    name,account,level:chosenLevel,
+    x:pos.x,z:pos.z,
+    house_number:houses.length+1,
+    district:"المدينة"
+   };
+   const {data,error}=await supabase.from("houses")
+    .insert(record).select("id,name,account,level,x,z").single();
+   if(error)throw error;
+   addHouseToScene(data);
+  }
+  closeModal();
+ }catch(error){
+  console.error(error);
+  alert("لم يتم حفظ البيت: "+(error.message||"خطأ غير معروف"));
+ }finally{
+  btn.disabled=false;btn.textContent="حفظ البيت";
  }
-
- if(editingId){
-  updateHouse({id:editingId,name,account,level:chosenLevel});
-  editingId=null;
- }else{
-  addHouse({id:Date.now().toString(),name,account,level:chosenLevel});
- }
-
- closeModal();
 };
 
-// تعديل الاسم والحساب والمستوى
+/* تعديل البيت */
 window.editSelected=()=>{
+ if(!isAdmin){alert("هذه الخاصية للمدير فقط");return}
  const h=houses.find(x=>x.id===selectedId);
  if(!h)return;
-
- editingId=h.id;
- chosenLevel=h.level;
-
+ editingId=h.id;chosenLevel=h.level;
  document.getElementById("modalTitle").textContent="✏️ تعديل بيانات البيت";
  document.getElementById("followerName").value=h.name;
  document.getElementById("followerAccount").value=h.account||"";
@@ -597,17 +631,17 @@ window.editSelected=()=>{
  document.getElementById("modal").style.display="flex";
 };
 
-// حذف البيت
-window.deleteSelected=()=>{
+/* حذف البيت */
+window.deleteSelected=async()=>{
+ if(!isAdmin){alert("هذه الخاصية للمدير فقط");return}
  const h=houses.find(x=>x.id===selectedId);
  if(!h)return;
-
  if(!confirm("متأكد تريد تحذف بيت "+h.name+"؟"))return;
 
+ const {error}=await supabase.from("houses").delete().eq("id",h.id);
+ if(error){alert("تعذر حذف البيت: "+error.message);return}
  houseRoot.remove(h.object);
- const i=houses.findIndex(x=>x.id===selectedId);
- houses.splice(i,1);
-
+ houses=houses.filter(x=>x.id!==h.id);
  selectedId=null;
  document.getElementById("info").style.display="none";
  updateCounter();
@@ -617,83 +651,55 @@ window.closeInfo=()=>{
  selectedId=null;
  document.getElementById("info").style.display="none";
 };
-
 function showInfo(id){
  const h=houses.find(x=>x.id===id);
  if(!h)return;
-
  selectedId=id;
  document.getElementById("infoName").textContent="🏡 "+h.name;
  document.getElementById("infoLevel").textContent=
   "المستوى "+h.level+" — "+levelNames[h.level-1]+
   (h.account?" • "+h.account:"");
-
  document.getElementById("info").style.display="block";
 }
 
-// تحديد البيت بالضغط عليه
+/* تحديد البيت بالضغط عليه */
 const raycaster=new THREE.Raycaster();
 const pointer=new THREE.Vector2();
 let downX=0,downY=0;
-
 renderer.domElement.addEventListener("pointerdown",e=>{
- downX=e.clientX;
- downY=e.clientY;
+ downX=e.clientX;downY=e.clientY;
 });
-
 renderer.domElement.addEventListener("pointerup",e=>{
  if(Math.abs(e.clientX-downX)>6||Math.abs(e.clientY-downY)>6)return;
-
  pointer.x=(e.clientX/innerWidth)*2-1;
  pointer.y=-(e.clientY/innerHeight)*2+1;
-
  raycaster.setFromCamera(pointer,camera);
  const hits=raycaster.intersectObjects(houseRoot.children,true);
-
  if(!hits.length)return;
-
  let id=hits[0].object.userData.houseId;
  if(!id){
   let p=hits[0].object.parent;
-  while(p&&!id){
-   id=p.userData.houseId;
-   p=p.parent;
-  }
+  while(p&&!id){id=p.userData.houseId;p=p.parent}
  }
-
  if(id)showInfo(id);
 });
 
-// البحث عن المتابع
+/* البحث */
 window.searchHouse=()=>{
  const q=document.getElementById("search").value.trim().toLowerCase();
  if(!q)return;
-
  const h=houses.find(x=>
-  x.name.toLowerCase().includes(q)||
+  (x.name||"").toLowerCase().includes(q)||
   (x.account||"").toLowerCase().includes(q)
  );
-
- if(!h){
-  alert("لم يتم العثور على المتابع");
-  return;
- }
-
+ if(!h){alert("لم يتم العثور على المتابع");return}
  controls.target.set(h.x,0,h.z);
  camera.position.set(h.x+45,55,h.z+55);
  showInfo(h.id);
 };
 
-window.zoomIn=()=>{
- camera.position.multiplyScalar(.85);
- controls.update();
-};
-
-window.zoomOut=()=>{
- camera.position.multiplyScalar(1.18);
- controls.update();
-};
-
+window.zoomIn=()=>{camera.position.multiplyScalar(.85);controls.update()};
+window.zoomOut=()=>{camera.position.multiplyScalar(1.18);controls.update()};
 window.resetView=()=>{
  camera.position.set(170,190,210);
  controls.target.set(0,0,0);
